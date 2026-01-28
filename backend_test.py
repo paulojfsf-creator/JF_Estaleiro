@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Comprehensive Backend API Testing for Construction Warehouse Management System
-Tests all endpoints including authentication, CRUD operations, assignments, and exports.
+Tests all endpoints including authentication, CRUD operations, movements, and exports.
 """
 
 import requests
@@ -20,11 +20,10 @@ class WarehouseAPITester:
         self.tests_passed = 0
         self.failed_tests = []
         self.created_resources = {
-            'machines': [],
-            'equipment': [],
-            'tools': [],
-            'vehicles': [],
-            'materials': [],
+            'equipamentos': [],
+            'viaturas': [],
+            'materiais': [],
+            'locais': [],
             'obras': []
         }
 
