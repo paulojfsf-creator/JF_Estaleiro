@@ -372,6 +372,91 @@ class WarehouseAPITester:
             self.log_result("Get dashboard summary", False, str(response))
             return False
 
+    # ==================== FILE UPLOAD TESTS ====================
+    def test_file_upload(self):
+        """Test file upload endpoint POST /api/upload"""
+        try:
+            # Create a simple test image file in memory
+            import io
+            from PIL import Image
+            
+            # Create a small test image
+            img = Image.new('RGB', (100, 100), color='red')
+            img_bytes = io.BytesIO()
+            img.save(img_bytes, format='JPEG')
+            img_bytes.seek(0)
+            
+            url = f"{self.api_url}/upload"
+            headers = {'Authorization': f'Bearer {self.token}'}
+            files = {'file': ('test_image.jpg', img_bytes, 'image/jpeg')}
+            
+            response = requests.post(url, headers=headers, files=files, timeout=30)
+            
+            if response.status_code == 200:
+                response_data = response.json()
+                if 'url' in response_data and 'filename' in response_data:
+                    self.uploaded_file_url = response_data['url']
+                    self.uploaded_filename = response_data['filename']
+                    self.log_result("File upload (POST /api/upload)", True)
+                    return True
+                else:
+                    self.log_result("File upload (POST /api/upload)", False, f"Missing url or filename in response: {response_data}")
+                    return False
+            else:
+                self.log_result("File upload (POST /api/upload)", False, f"Status: {response.status_code}, Response: {response.text}")
+                return False
+        except Exception as e:
+            self.log_result("File upload (POST /api/upload)", False, str(e))
+            return False
+
+    def test_file_serving(self):
+        """Test file serving endpoint GET /api/uploads/{filename}"""
+        if not hasattr(self, 'uploaded_filename'):
+            self.log_result("File serving (GET /api/uploads/{filename})", False, "No uploaded file to test")
+            return False
+            
+        try:
+            url = f"{self.api_url}/uploads/{self.uploaded_filename}"
+            response = requests.get(url, timeout=30)
+            
+            if response.status_code == 200 and response.headers.get('content-type', '').startswith('image/'):
+                self.log_result("File serving (GET /api/uploads/{filename})", True)
+                return True
+            else:
+                self.log_result("File serving (GET /api/uploads/{filename})", False, f"Status: {response.status_code}, Content-Type: {response.headers.get('content-type')}")
+                return False
+        except Exception as e:
+            self.log_result("File serving (GET /api/uploads/{filename})", False, str(e))
+            return False
+
+    # ==================== ALERTS TESTS ====================
+    def test_alerts_check(self):
+        """Test alerts check endpoint GET /api/alerts/check"""
+        success, response = self.make_request('GET', 'alerts/check')
+        
+        if success and 'alerts' in response and 'total' in response:
+            self.log_result("Alerts check (GET /api/alerts/check)", True)
+            return True
+        else:
+            self.log_result("Alerts check (GET /api/alerts/check)", False, str(response))
+            return False
+
+    def test_alerts_send(self):
+        """Test alerts send endpoint POST /api/alerts/send"""
+        success, response = self.make_request('POST', 'alerts/send', data={})
+        
+        # This endpoint might fail due to Resend domain verification, which is expected
+        if success and 'status' in response:
+            self.log_result("Alerts send (POST /api/alerts/send)", True)
+            return True
+        elif not success and 'verify a domain' in str(response).lower():
+            # Expected behavior - Resend requires domain verification
+            self.log_result("Alerts send (POST /api/alerts/send) - Domain verification required (expected)", True)
+            return True
+        else:
+            self.log_result("Alerts send (POST /api/alerts/send)", False, str(response))
+            return False
+
     # ==================== EXPORT TESTS ====================
     def test_export_pdf(self):
         """Test PDF export functionality"""
