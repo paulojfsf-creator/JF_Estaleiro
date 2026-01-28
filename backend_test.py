@@ -428,18 +428,6 @@ class WarehouseAPITester:
             
         for local_id in self.created_resources['locais']:
             self.make_request('DELETE', f'locais/{local_id}', expected_status=200)
-            
-        for equipment_id in self.created_resources['equipment']:
-            self.make_request('DELETE', f'equipment/{equipment_id}', expected_status=200)
-            
-        for tool_id in self.created_resources['tools']:
-            self.make_request('DELETE', f'tools/{tool_id}', expected_status=200)
-            
-        for vehicle_id in self.created_resources['vehicles']:
-            self.make_request('DELETE', f'vehicles/{vehicle_id}', expected_status=200)
-            
-        for material_id in self.created_resources['materials']:
-            self.make_request('DELETE', f'materials/{material_id}', expected_status=200)
 
     # ==================== MAIN TEST RUNNER ====================
     def run_all_tests(self):
