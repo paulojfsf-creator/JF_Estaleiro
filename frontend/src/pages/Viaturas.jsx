@@ -172,9 +172,15 @@ export default function Viaturas() {
           </h1>
           <p className="page-subtitle">Gestão de viaturas e veículos</p>
         </div>
-        <Button onClick={() => { resetForm(); setDialogOpen(true); }} className="btn-primary" data-testid="add-viatura-btn">
-          <Plus className="h-4 w-4 mr-2" /> Nova Viatura
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handleSendAlerts} disabled={sendingAlerts} variant="outline" className="rounded-sm" data-testid="send-alerts-btn">
+            <Mail className="h-4 w-4 mr-2" />
+            {sendingAlerts ? "A enviar..." : "Enviar Alertas"}
+          </Button>
+          <Button onClick={() => { resetForm(); setDialogOpen(true); }} className="btn-primary" data-testid="add-viatura-btn">
+            <Plus className="h-4 w-4 mr-2" /> Nova Viatura
+          </Button>
+        </div>
       </div>
 
       <div className="mb-6 relative max-w-md">
