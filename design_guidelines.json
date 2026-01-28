@@ -1,0 +1,137 @@
+{
+  "typography": {
+    "font_family": {
+      "headings": "Chivo, sans-serif",
+      "body": "Inter, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "weights": {
+      "headings": "900",
+      "body": "400",
+      "bold": "700"
+    },
+    "sizes": {
+      "h1": "text-4xl md:text-5xl tracking-tight",
+      "h2": "text-3xl tracking-tight",
+      "h3": "text-2xl tracking-tight",
+      "body": "text-base leading-relaxed",
+      "small": "text-sm leading-normal",
+      "tiny": "text-xs tracking-wide uppercase"
+    }
+  },
+  "colors": {
+    "theme": "light",
+    "palette": {
+      "primary": {
+        "DEFAULT": "#0F172A",
+        "foreground": "#F8FAFC"
+      },
+      "secondary": {
+        "DEFAULT": "#F1F5F9",
+        "foreground": "#0F172A"
+      },
+      "accent": {
+        "DEFAULT": "#F59E0B",
+        "foreground": "#0F172A"
+      },
+      "background": "#F8FAFC",
+      "surface": "#FFFFFF",
+      "border": "#E2E8F0",
+      "muted": "#64748B",
+      "success": "#10B981",
+      "warning": "#F59E0B",
+      "error": "#EF4444"
+    },
+    "gradients": {
+      "primary": "none",
+      "subtle": "linear-gradient(to bottom right, #F8FAFC, #F1F5F9)"
+    }
+  },
+  "layout": {
+    "grid_system": {
+      "dashboard": "grid grid-cols-1 md:grid-cols-4 gap-4",
+      "marketing": "grid grid-cols-1 md:grid-cols-12 gap-8"
+    },
+    "spacing": {
+      "container_padding": "p-6 md:p-8",
+      "section_gap": "gap-8",
+      "component_gap": "gap-4"
+    },
+    "container": {
+      "max_width": "max-w-7xl mx-auto",
+      "alignment": "center"
+    }
+  },
+  "components": {
+    "radius": "rounded-sm",
+    "shadows": {
+      "card": "shadow-sm hover:shadow-md transition-shadow duration-200",
+      "dropdown": "shadow-lg border border-slate-200"
+    },
+    "buttons": {
+      "primary": "bg-slate-900 text-white hover:bg-slate-800 rounded-sm font-medium px-6 py-2.5 transition-all active:scale-95",
+      "secondary": "bg-white border border-slate-200 text-slate-900 hover:bg-slate-50 rounded-sm font-medium px-6 py-2.5 transition-all",
+      "ghost": "hover:bg-slate-100 text-slate-700 rounded-sm px-4 py-2"
+    },
+    "cards": {
+      "style": "bg-white border border-slate-200 rounded-sm p-6"
+    },
+    "inputs": {
+      "style": "bg-white border border-slate-300 rounded-sm px-4 py-2 focus:ring-2 focus:ring-slate-900 focus:border-transparent outline-none transition-all"
+    }
+  },
+  "visual_enhancers": {
+    "textures": "bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03]",
+    "glassmorphism": "backdrop-blur-md bg-white/80 border border-white/20 shadow-sm",
+    "borders": "border border-slate-200"
+  },
+  "images": {
+    "hero": {
+      "url": "https://images.unsplash.com/photo-1748848436533-f7583dce22b6?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMjd8MHwxfHNlYXJjaHwzfHxjb25zdHJ1Y3Rpb24lMjBzaXRlJTIwZXhjYXZhdG9yfGVufDB8fHx8MTc2OTU5Mjk1MXww&ixlib=rb-4.1.0&q=85",
+      "alt": "Aerial view of construction site with excavator"
+    },
+    "machines": [
+      {
+        "url": "https://images.unsplash.com/photo-1652922660696-60c68ec51582?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMjd8MHwxfHNlYXJjaHwxfHxjb25zdHJ1Y3Rpb24lMjBzaXRlJTIwZXhjYXZhdG9yfGVufDB8fHx8MTc2OTU5Mjk1MXww&ixlib=rb-4.1.0&q=85",
+        "alt": "Yellow bulldozer"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1678944827354-fb54b9040a04?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMjd8MHwxfHNlYXJjaHw0fHxjb25zdHJ1Y3Rpb24lMjBzaXRlJTIwZXhjYXZhdG9yfGVufDB8fHx8MTc2OTU5Mjk1MXww&ixlib=rb-4.1.0&q=85",
+        "alt": "Demolition work"
+      }
+    ],
+    "tools": [
+      {
+        "url": "https://images.unsplash.com/photo-1645651964715-d200ce0939cc?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzV8MHwxfHNlYXJjaHwxfHxjb25zdHJ1Y3Rpb24lMjB0b29scyUyMGRyaWxsJTIwaGFtbWVyfGVufDB8fHx8MTc2OTU5Mjk1Mnww&ixlib=rb-4.1.0&q=85",
+        "alt": "Power tools on table"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1760009436767-d154e930e55c?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzV8MHwxfHNlYXJjaHwyfHxjb25zdHJ1Y3Rpb24lMjB0b29scyUyMGRyaWxsJTIwaGFtbWVyfGVufDB8fHx8MTc2OTU5Mjk1Mnww&ixlib=rb-4.1.0&q=85",
+        "alt": "Construction crew with tools"
+      }
+    ],
+    "materials": [
+      {
+        "url": "https://images.unsplash.com/photo-1716839150167-65bab9a253db?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1OTN8MHwxfHNlYXJjaHwxfHxjb25zdHJ1Y3Rpb24lMjBtYXRlcmlhbHMlMjBicmlja3MlMjBjZW1lbnR8ZW58MHx8fHwxNzY5NTkyOTU0fDA&ixlib=rb-4.1.0&q=85",
+        "alt": "Stack of cinder blocks"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1716839134585-04345d8c7c6b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1OTN8MHwxfHNlYXJjaHwyfHxjb25zdHJ1Y3Rpb24lMjBtYXRlcmlhbHMlMjBicmlja3MlMjBjZW1lbnR8ZW58MHx8fHwxNzY5NTkyOTU0fDA&ixlib=rb-4.1.0&q=85",
+        "alt": "Brick wall close up"
+      }
+    ]
+  },
+  "universal_guidelines": [
+    "Avoid generic 'SaaS Blue'. Use Slate/Zinc greys with Safety Orange/Yellow accents.",
+    "Use 'Chivo' for headings to give an industrial, robust feel.",
+    "Dashboard layout must be dense (Bento Grid Mode B) - construction managers need data at a glance.",
+    "Use 'Traffic Light' color coding for status (Green=Available, Yellow=Maintenance, Red=In Use/Broken).",
+    "Buttons should be rectangular or have very small radius (rounded-sm) to feel 'engineered'.",
+    "Add 'data-testid' to all interactive elements.",
+    "Ensure high contrast for outdoor readability (WCAG AA+).",
+    "Use 'sonner' for toast notifications.",
+    "Do not use gradients for backgrounds; use subtle noise or flat colors.",
+    "Inputs and cards should have distinct borders, not just shadows."
+  ],
+  "instructions_to_main_agent": "Implement the dashboard using the 'Swiss & High-Contrast' archetype. Focus on legibility and data density. The 'Machines' and 'Tools' sections should use the provided images as thumbnails in list/grid views. Use the 'Chivo' font for all headings. Ensure the sidebar navigation is collapsible for mobile responsiveness."
+}
