@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { useAuth, API } from "@/App";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Building2, Eye, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, MapPin, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,13 +31,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Switch } from "@/components/ui/switch";
 
-const estadoOptions = ["Ativa", "Concluida", "Pausada"];
-const estadoLabels = { Ativa: "Ativa", Concluida: "Concluída", Pausada: "Pausada" };
+const tipoOptions = [
+  { value: "ARM", label: "Armazém" },
+  { value: "OFI", label: "Oficina" },
+  { value: "OBR", label: "Obra" },
+  { value: "OBS", label: "Obsoleto" }
+];
 
-export default function Obras() {
+export default function Locais() {
   const { token } = useAuth();
-  const navigate = useNavigate();
+  const [locais, setLocais] = useState([]);
   const [obras, setObras] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -48,9 +52,9 @@ export default function Obras() {
   const [formData, setFormData] = useState({
     codigo: "",
     nome: "",
-    endereco: "",
-    cliente: "",
-    estado: "Ativa"
+    tipo: "ARM",
+    obra_id: "",
+    ativo: true
   });
 
   useEffect(() => {
@@ -59,10 +63,14 @@ export default function Obras() {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(`${API}/obras`, { headers: { Authorization: `Bearer ${token}` } });
-      setObras(response.data);
+      const [locRes, obrasRes] = await Promise.all([
+        axios.get(`${API}/locais`, { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`${API}/obras`, { headers: { Authorization: `Bearer ${token}` } })
+      ]);
+      setLocais(locRes.data);
+      setObras(obrasRes.data);
     } catch (error) {
-      toast.error("Erro ao carregar obras");
+      toast.error("Erro ao carregar dados");
     } finally {
       setLoading(false);
     }
@@ -71,12 +79,13 @@ export default function Obras() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const payload = { ...formData, obra_id: formData.obra_id || null };
       if (selectedItem) {
-        await axios.put(`${API}/obras/${selectedItem.id}`, formData, { headers: { Authorization: `Bearer ${token}` } });
-        toast.success("Obra atualizada");
+        await axios.put(`${API}/locais/${selectedItem.id}`, payload, { headers: { Authorization: `Bearer ${token}` } });
+        toast.success("Local atualizado");
       } else {
-        await axios.post(`${API}/obras`, formData, { headers: { Authorization: `Bearer ${token}` } });
-        toast.success("Obra criada");
+        await axios.post(`${API}/locais`, payload, { headers: { Authorization: `Bearer ${token}` } });
+        toast.success("Local criado");
       }
       setDialogOpen(false);
       resetForm();
@@ -88,8 +97,8 @@ export default function Obras() {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`${API}/obras/${selectedItem.id}`, { headers: { Authorization: `Bearer ${token}` } });
-      toast.success("Obra eliminada");
+      await axios.delete(`${API}/locais/${selectedItem.id}`, { headers: { Authorization: `Bearer ${token}` } });
+      toast.success("Local eliminado");
       setDeleteDialogOpen(false);
       setSelectedItem(null);
       fetchData();
@@ -103,78 +112,79 @@ export default function Obras() {
     setFormData({
       codigo: item.codigo,
       nome: item.nome,
-      endereco: item.endereco || "",
-      cliente: item.cliente || "",
-      estado: item.estado || "Ativa"
+      tipo: item.tipo || "ARM",
+      obra_id: item.obra_id || "",
+      ativo: item.ativo ?? true
     });
     setDialogOpen(true);
   };
 
   const resetForm = () => {
     setSelectedItem(null);
-    setFormData({ codigo: "", nome: "", endereco: "", cliente: "", estado: "Ativa" });
+    setFormData({ codigo: "", nome: "", tipo: "ARM", obra_id: "", ativo: true });
   };
 
-  const filtered = obras.filter(o => 
-    o.codigo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    o.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    o.cliente?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filtered = locais.filter(l => 
+    l.codigo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    l.nome?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const getTipoLabel = (tipo) => tipoOptions.find(t => t.value === tipo)?.label || tipo;
+  const getObraName = (obraId) => obras.find(o => o.id === obraId)?.nome || "-";
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="text-slate-500">A carregar...</div></div>;
 
   return (
-    <div data-testid="obras-page">
+    <div data-testid="locais-page">
       <div className="page-header flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="page-title flex items-center gap-3">
-            <Building2 className="h-8 w-8 text-amber-500" />
-            Obras
+            <MapPin className="h-8 w-8 text-amber-500" />
+            Locais
           </h1>
-          <p className="page-subtitle">Gestão de obras e projetos</p>
+          <p className="page-subtitle">Gestão de locais e armazéns</p>
         </div>
-        <Button onClick={() => { resetForm(); setDialogOpen(true); }} className="btn-primary" data-testid="add-obra-btn">
-          <Plus className="h-4 w-4 mr-2" /> Nova Obra
+        <Button onClick={() => { resetForm(); setDialogOpen(true); }} className="btn-primary" data-testid="add-local-btn">
+          <Plus className="h-4 w-4 mr-2" /> Novo Local
         </Button>
       </div>
 
       <div className="mb-6 relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-        <Input placeholder="Pesquisar por código, nome ou cliente..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 rounded-sm" />
+        <Input placeholder="Pesquisar por código ou nome..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 rounded-sm" />
       </div>
 
       {filtered.length === 0 ? (
         <div className="text-center py-12 bg-white border border-slate-200 rounded-sm">
-          <Building2 className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-          <p className="text-slate-500">{searchTerm ? "Nenhum resultado" : "Nenhuma obra registada"}</p>
+          <MapPin className="h-12 w-12 text-slate-300 mx-auto mb-4" />
+          <p className="text-slate-500">{searchTerm ? "Nenhum resultado" : "Nenhum local registado"}</p>
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="data-table" data-testid="obras-table">
+          <table className="data-table" data-testid="locais-table">
             <thead>
               <tr>
                 <th>Código</th>
                 <th>Nome</th>
-                <th>Endereço</th>
-                <th>Cliente</th>
-                <th>Estado</th>
+                <th>Tipo</th>
+                <th>Obra Associada</th>
+                <th>Ativo</th>
                 <th className="text-right">Ações</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((item) => (
-                <tr key={item.id} data-testid={`obra-row-${item.id}`}>
+                <tr key={item.id} data-testid={`local-row-${item.id}`}>
                   <td className="font-mono font-medium">{item.codigo}</td>
                   <td>{item.nome}</td>
-                  <td className="text-slate-500">{item.endereco || "-"}</td>
-                  <td className="text-slate-500">{item.cliente || "-"}</td>
                   <td>
-                    <span className={`badge ${item.estado === "Ativa" ? "status-available" : item.estado === "Pausada" ? "status-maintenance" : "status-completed"}`}>
-                      {estadoLabels[item.estado] || item.estado}
+                    <span className={`badge ${item.tipo === "ARM" ? "status-available" : item.tipo === "OBR" ? "status-in_use" : item.tipo === "OFI" ? "status-maintenance" : "status-broken"}`}>
+                      {getTipoLabel(item.tipo)}
                     </span>
                   </td>
+                  <td className="text-slate-500">{getObraName(item.obra_id)}</td>
+                  <td><span className={`h-2 w-2 rounded-full inline-block ${item.ativo ? "bg-emerald-500" : "bg-slate-300"}`} /></td>
                   <td className="text-right">
-                    <Button variant="ghost" size="sm" onClick={() => navigate(`/obras/${item.id}`)} data-testid={`view-${item.id}`}><Eye className="h-4 w-4" /></Button>
                     <Button variant="ghost" size="sm" onClick={() => openEditDialog(item)}><Pencil className="h-4 w-4" /></Button>
                     <Button variant="ghost" size="sm" onClick={() => { setSelectedItem(item); setDeleteDialogOpen(true); }} className="text-red-500"><Trash2 className="h-4 w-4" /></Button>
                   </td>
@@ -188,8 +198,8 @@ export default function Obras() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>{selectedItem ? "Editar Obra" : "Nova Obra"}</DialogTitle>
-            <DialogDescription>Preencha os dados da obra</DialogDescription>
+            <DialogTitle>{selectedItem ? "Editar Local" : "Novo Local"}</DialogTitle>
+            <DialogDescription>Preencha os dados do local</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
@@ -201,22 +211,28 @@ export default function Obras() {
                 <Label>Nome *</Label>
                 <Input value={formData.nome} onChange={(e) => setFormData({...formData, nome: e.target.value})} required className="rounded-sm" />
               </div>
-              <div className="space-y-2 md:col-span-2">
-                <Label>Endereço</Label>
-                <Input value={formData.endereco} onChange={(e) => setFormData({...formData, endereco: e.target.value})} className="rounded-sm" />
-              </div>
               <div className="space-y-2">
-                <Label>Cliente</Label>
-                <Input value={formData.cliente} onChange={(e) => setFormData({...formData, cliente: e.target.value})} className="rounded-sm" />
-              </div>
-              <div className="space-y-2">
-                <Label>Estado</Label>
-                <Select value={formData.estado} onValueChange={(v) => setFormData({...formData, estado: v})}>
+                <Label>Tipo</Label>
+                <Select value={formData.tipo} onValueChange={(v) => setFormData({...formData, tipo: v})}>
                   <SelectTrigger className="rounded-sm"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {estadoOptions.map(e => <SelectItem key={e} value={e}>{estadoLabels[e]}</SelectItem>)}
+                    {tipoOptions.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Obra Associada</Label>
+                <Select value={formData.obra_id} onValueChange={(v) => setFormData({...formData, obra_id: v})}>
+                  <SelectTrigger className="rounded-sm"><SelectValue placeholder="Selecione" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Nenhuma</SelectItem>
+                    {obras.map(o => <SelectItem key={o.id} value={o.id}>{o.codigo} - {o.nome}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center gap-3">
+                <Switch checked={formData.ativo} onCheckedChange={(v) => setFormData({...formData, ativo: v})} />
+                <Label>Ativo</Label>
               </div>
             </div>
             <DialogFooter>
@@ -230,7 +246,7 @@ export default function Obras() {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Eliminar Obra</AlertDialogTitle>
+            <AlertDialogTitle>Eliminar Local</AlertDialogTitle>
             <AlertDialogDescription>Tem a certeza que deseja eliminar "{selectedItem?.nome}"?</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

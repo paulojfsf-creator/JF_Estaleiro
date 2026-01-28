@@ -3,18 +3,19 @@ import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/App";
 import {
   LayoutDashboard,
-  Cog,
   Wrench,
-  Hammer,
   Truck,
   Package,
+  MapPin,
   Building2,
+  ArrowLeftRight,
   FileText,
   Menu,
   X,
   LogOut,
   User,
-  ChevronLeft
+  ChevronLeft,
+  ChevronDown
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -22,22 +23,32 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
   { path: "/", icon: LayoutDashboard, label: "Dashboard" },
-  { path: "/maquinas", icon: Cog, label: "Máquinas" },
   { path: "/equipamentos", icon: Wrench, label: "Equipamentos" },
-  { path: "/ferramentas", icon: Hammer, label: "Ferramentas" },
   { path: "/viaturas", icon: Truck, label: "Viaturas" },
   { path: "/materiais", icon: Package, label: "Materiais" },
+  { path: "/locais", icon: MapPin, label: "Locais" },
   { path: "/obras", icon: Building2, label: "Obras" },
-  { path: "/relatorios", icon: FileText, label: "Relatórios" },
+];
+
+const movimentosItems = [
+  { path: "/movimentos/ativos", label: "Mov. Ativos" },
+  { path: "/movimentos/stock", label: "Mov. Stock" },
+  { path: "/movimentos/viaturas", label: "Mov. Viaturas" },
 ];
 
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [movimentosOpen, setMovimentosOpen] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -48,7 +59,6 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Mobile overlay */}
       {mobileOpen && (
         <div 
           className="fixed inset-0 bg-black/50 z-40 md:hidden"
@@ -56,13 +66,11 @@ export default function Layout() {
         />
       )}
 
-      {/* Sidebar */}
       <aside 
-        className={`fixed left-0 top-0 h-full bg-slate-900 text-white transition-all duration-300 z-50
+        className={`fixed left-0 top-0 h-full bg-slate-900 text-white transition-all duration-300 z-50 overflow-y-auto
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} 
           md:translate-x-0 ${sidebarOpen ? 'w-64' : 'w-20'}`}
       >
-        {/* Logo */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800">
           {sidebarOpen && (
             <div className="flex items-center gap-2">
@@ -86,7 +94,6 @@ export default function Layout() {
           </button>
         </div>
 
-        {/* Navigation */}
         <nav className="py-4">
           {navItems.map((item) => (
             <NavLink
@@ -104,12 +111,51 @@ export default function Layout() {
               {sidebarOpen && <span>{item.label}</span>}
             </NavLink>
           ))}
+          
+          {/* Movimentos Collapsible */}
+          <Collapsible open={movimentosOpen} onOpenChange={setMovimentosOpen}>
+            <CollapsibleTrigger className="flex items-center gap-3 px-4 py-3 w-full text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+              <ArrowLeftRight className="h-5 w-5 flex-shrink-0" />
+              {sidebarOpen && (
+                <>
+                  <span className="flex-1 text-left">Movimentos</span>
+                  <ChevronDown className={`h-4 w-4 transition-transform ${movimentosOpen ? 'rotate-180' : ''}`} />
+                </>
+              )}
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              {movimentosItems.map((item) => (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  onClick={() => setMobileOpen(false)}
+                  className={({ isActive }) => 
+                    `flex items-center gap-3 px-4 py-2 pl-12 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors text-sm
+                    ${isActive ? 'bg-slate-800 text-white' : ''}`
+                  }
+                >
+                  {sidebarOpen && <span>{item.label}</span>}
+                </NavLink>
+              ))}
+            </CollapsibleContent>
+          </Collapsible>
+
+          <NavLink
+            to="/relatorios"
+            data-testid="nav-relatorios"
+            onClick={() => setMobileOpen(false)}
+            className={({ isActive }) => 
+              `flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors
+              ${isActive ? 'bg-slate-800 text-white border-l-4 border-amber-500' : ''}`
+            }
+          >
+            <FileText className="h-5 w-5 flex-shrink-0" />
+            {sidebarOpen && <span>Relatórios</span>}
+          </NavLink>
         </nav>
       </aside>
 
-      {/* Main content */}
       <div className={`transition-all duration-300 ${sidebarOpen ? 'md:ml-64' : 'md:ml-20'}`}>
-        {/* Header */}
         <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-6 sticky top-0 z-30">
           <button
             data-testid="open-mobile-sidebar-btn"
@@ -139,7 +185,6 @@ export default function Layout() {
           </DropdownMenu>
         </header>
 
-        {/* Page content */}
         <main className="p-4 md:p-6 lg:p-8">
           <Outlet />
         </main>

@@ -7,13 +7,15 @@ import { Toaster } from "@/components/ui/sonner";
 // Pages
 import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
-import Machines from "@/pages/Machines";
-import Equipment from "@/pages/Equipment";
-import Tools from "@/pages/Tools";
-import Vehicles from "@/pages/Vehicles";
-import Materials from "@/pages/Materials";
+import Equipamentos from "@/pages/Equipamentos";
+import Viaturas from "@/pages/Viaturas";
+import Materiais from "@/pages/Materiais";
+import Locais from "@/pages/Locais";
 import Obras from "@/pages/Obras";
 import ObraDetail from "@/pages/ObraDetail";
+import MovimentosAtivos from "@/pages/MovimentosAtivos";
+import MovimentosStock from "@/pages/MovimentosStock";
+import MovimentosViaturas from "@/pages/MovimentosViaturas";
 import Reports from "@/pages/Reports";
 import Layout from "@/components/Layout";
 
@@ -117,13 +119,15 @@ function App() {
             </ProtectedRoute>
           }>
             <Route index element={<Dashboard />} />
-            <Route path="maquinas" element={<Machines />} />
-            <Route path="equipamentos" element={<Equipment />} />
-            <Route path="ferramentas" element={<Tools />} />
-            <Route path="viaturas" element={<Vehicles />} />
-            <Route path="materiais" element={<Materials />} />
+            <Route path="equipamentos" element={<Equipamentos />} />
+            <Route path="viaturas" element={<Viaturas />} />
+            <Route path="materiais" element={<Materiais />} />
+            <Route path="locais" element={<Locais />} />
             <Route path="obras" element={<Obras />} />
             <Route path="obras/:id" element={<ObraDetail />} />
+            <Route path="movimentos/ativos" element={<MovimentosAtivos />} />
+            <Route path="movimentos/stock" element={<MovimentosStock />} />
+            <Route path="movimentos/viaturas" element={<MovimentosViaturas />} />
             <Route path="relatorios" element={<Reports />} />
           </Route>
         </Routes>
