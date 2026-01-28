@@ -444,9 +444,10 @@ class WarehouseAPITester:
 
     def test_alerts_send(self):
         """Test alerts send endpoint POST /api/alerts/send"""
-        success, response = self.make_request('POST', 'alerts/send', data={}, expected_status=400)
+        # Try with default expected status first
+        success, response = self.make_request('POST', 'alerts/send', data={})
         
-        # This endpoint is expected to fail due to Resend domain verification requirement
+        # Check if it's the expected domain verification error
         if not success and ('verify a domain' in str(response).lower() or 'verificar o domínio' in str(response).lower()):
             # Expected behavior - Resend requires domain verification
             self.log_result("Alerts send (POST /api/alerts/send) - Domain verification required (expected)", True)
