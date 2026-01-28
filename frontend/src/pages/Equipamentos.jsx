@@ -299,6 +299,13 @@ export default function Equipamentos() {
                 <Label>URL Foto</Label>
                 <Input value={formData.foto} onChange={(e) => setFormData({...formData, foto: e.target.value})} placeholder="https://..." data-testid="foto-input" className="rounded-sm" />
               </div>
+              <div className="md:col-span-2">
+                <ImageUpload 
+                  value={formData.foto} 
+                  onChange={(url) => setFormData({...formData, foto: url})}
+                  label="Ou carregar foto"
+                />
+              </div>
               <div className="flex items-center gap-3">
                 <Switch checked={formData.ativo} onCheckedChange={(v) => setFormData({...formData, ativo: v})} data-testid="ativo-switch" />
                 <Label>Ativo</Label>
