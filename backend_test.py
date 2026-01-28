@@ -530,6 +530,16 @@ class WarehouseAPITester:
         self.test_auth_me()
         self.test_register_new_user()
 
+        # File Upload Tests
+        print("\n📁 File Upload Tests")
+        self.test_file_upload()
+        self.test_file_serving()
+
+        # Alerts Tests
+        print("\n🚨 Alerts Tests")
+        self.test_alerts_check()
+        self.test_alerts_send()
+
         # CRUD Tests
         print("\n📦 Resource CRUD Tests")
         self.test_locais_crud()
