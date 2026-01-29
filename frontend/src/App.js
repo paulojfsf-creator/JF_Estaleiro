@@ -8,9 +8,10 @@ import { Toaster } from "@/components/ui/sonner";
 import Login from "@/pages/Login";
 import Dashboard from "@/pages/Dashboard";
 import Equipamentos from "@/pages/Equipamentos";
+import EquipamentoDetail from "@/pages/EquipamentoDetail";
 import Viaturas from "@/pages/Viaturas";
+import ViaturaDetail from "@/pages/ViaturaDetail";
 import Materiais from "@/pages/Materiais";
-import Locais from "@/pages/Locais";
 import Obras from "@/pages/Obras";
 import ObraDetail from "@/pages/ObraDetail";
 import MovimentosAtivos from "@/pages/MovimentosAtivos";
@@ -120,9 +121,10 @@ function App() {
           }>
             <Route index element={<Dashboard />} />
             <Route path="equipamentos" element={<Equipamentos />} />
+            <Route path="equipamentos/:id" element={<EquipamentoDetail />} />
             <Route path="viaturas" element={<Viaturas />} />
+            <Route path="viaturas/:id" element={<ViaturaDetail />} />
             <Route path="materiais" element={<Materiais />} />
-            <Route path="locais" element={<Locais />} />
             <Route path="obras" element={<Obras />} />
             <Route path="obras/:id" element={<ObraDetail />} />
             <Route path="movimentos/ativos" element={<MovimentosAtivos />} />
