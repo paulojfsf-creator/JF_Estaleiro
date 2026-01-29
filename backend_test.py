@@ -12,7 +12,7 @@ from typing import Dict, List, Optional
 from PIL import Image
 
 class WarehouseAPITester:
-    def __init__(self, base_url="https://construction-hub-119.preview.emergentagent.com"):
+    def __init__(self, base_url="https://constructhub-74.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.token = None
