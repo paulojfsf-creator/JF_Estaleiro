@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth, API } from "@/App";
 import axios from "axios";
 import { toast } from "sonner";
-import { Plus, Package } from "lucide-react";
+import { Plus, Package, ArrowDown, ArrowUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -95,58 +95,59 @@ export default function MovimentosStock() {
   };
   const getObraName = (id) => obras.find(o => o.id === id)?.nome || "-";
 
-  if (loading) return <div className="flex items-center justify-center h-64"><div className="text-slate-500">A carregar...</div></div>;
+  if (loading) return <div className="flex items-center justify-center h-64"><div className="text-neutral-400">A carregar...</div></div>;
 
   return (
-    <div data-testid="movimentos-stock-page">
-      <div className="page-header flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div data-testid="movimentos-stock-page" className="animate-fade-in">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
-          <h1 className="page-title flex items-center gap-3">
-            <Package className="h-8 w-8 text-amber-500" />
+          <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+            <Package className="h-7 w-7 text-orange-500" />
             Movimentos de Stock
           </h1>
-          <p className="page-subtitle">Registo de entradas e saídas de materiais</p>
+          <p className="text-neutral-400 text-sm mt-1">Registo de entradas e saídas de materiais</p>
         </div>
-        <Button onClick={() => { resetForm(); setDialogOpen(true); }} className="btn-primary" data-testid="add-mov-btn">
+        <Button onClick={() => { resetForm(); setDialogOpen(true); }} className="bg-orange-500 hover:bg-orange-600 text-black font-semibold" data-testid="add-mov-btn">
           <Plus className="h-4 w-4 mr-2" /> Novo Movimento
         </Button>
       </div>
 
       {movimentos.length === 0 ? (
-        <div className="text-center py-12 bg-white border border-slate-200 rounded-sm">
-          <Package className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-          <p className="text-slate-500">Nenhum movimento registado</p>
+        <div className="text-center py-12 bg-neutral-800 border border-neutral-700 rounded-lg">
+          <Package className="h-12 w-12 text-neutral-600 mx-auto mb-4" />
+          <p className="text-neutral-400">Nenhum movimento registado</p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="data-table" data-testid="movimentos-table">
+        <div className="overflow-x-auto bg-neutral-800 border border-neutral-700 rounded-lg">
+          <table className="w-full" data-testid="movimentos-table">
             <thead>
-              <tr>
-                <th>Data/Hora</th>
-                <th>Tipo</th>
-                <th>Material</th>
-                <th>Quantidade</th>
-                <th>Obra</th>
-                <th>Fornecedor</th>
-                <th>Responsável</th>
+              <tr className="border-b border-neutral-700">
+                <th className="text-left py-3 px-4 text-neutral-400 font-medium text-sm">Data/Hora</th>
+                <th className="text-left py-3 px-4 text-neutral-400 font-medium text-sm">Tipo</th>
+                <th className="text-left py-3 px-4 text-neutral-400 font-medium text-sm">Material</th>
+                <th className="text-left py-3 px-4 text-neutral-400 font-medium text-sm">Quantidade</th>
+                <th className="text-left py-3 px-4 text-neutral-400 font-medium text-sm">Obra</th>
+                <th className="text-left py-3 px-4 text-neutral-400 font-medium text-sm">Fornecedor</th>
+                <th className="text-left py-3 px-4 text-neutral-400 font-medium text-sm">Responsável</th>
               </tr>
             </thead>
             <tbody>
               {movimentos.map((mov) => (
-                <tr key={mov.id}>
-                  <td className="text-sm">{new Date(mov.data_hora).toLocaleString("pt-PT")}</td>
-                  <td>
-                    <span className={`badge ${mov.tipo_movimento === "Entrada" ? "status-available" : "status-in_use"}`}>
+                <tr key={mov.id} className="border-b border-neutral-700/50 hover:bg-neutral-700/30">
+                  <td className="py-3 px-4 text-sm text-neutral-300">{new Date(mov.data_hora).toLocaleString("pt-PT")}</td>
+                  <td className="py-3 px-4">
+                    <span className={`px-2 py-1 rounded text-xs font-medium flex items-center gap-1 w-fit ${mov.tipo_movimento === "Entrada" ? "bg-emerald-500/20 text-emerald-400" : "bg-amber-500/20 text-amber-400"}`}>
+                      {mov.tipo_movimento === "Entrada" ? <ArrowDown className="h-3 w-3" /> : <ArrowUp className="h-3 w-3" />}
                       {mov.tipo_movimento}
                     </span>
                   </td>
-                  <td>{getMaterialName(mov.material_id)}</td>
-                  <td className={mov.tipo_movimento === "Entrada" ? "text-emerald-600" : "text-red-600"}>
+                  <td className="py-3 px-4 text-white">{getMaterialName(mov.material_id)}</td>
+                  <td className={`py-3 px-4 font-medium ${mov.tipo_movimento === "Entrada" ? "text-emerald-400" : "text-amber-400"}`}>
                     {mov.tipo_movimento === "Entrada" ? "+" : "-"}{mov.quantidade}
                   </td>
-                  <td className="text-slate-500">{getObraName(mov.obra_id)}</td>
-                  <td className="text-slate-500">{mov.fornecedor || "-"}</td>
-                  <td className="text-slate-500">{mov.responsavel || "-"}</td>
+                  <td className="py-3 px-4 text-neutral-400">{getObraName(mov.obra_id)}</td>
+                  <td className="py-3 px-4 text-neutral-400">{mov.fornecedor || "-"}</td>
+                  <td className="py-3 px-4 text-neutral-400">{mov.responsavel || "-"}</td>
                 </tr>
               ))}
             </tbody>
@@ -155,65 +156,65 @@ export default function MovimentosStock() {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg bg-neutral-900 border-neutral-700">
           <DialogHeader>
-            <DialogTitle>Novo Movimento de Stock</DialogTitle>
-            <DialogDescription>Registe uma entrada ou saída de material</DialogDescription>
+            <DialogTitle className="text-white">Novo Movimento de Stock</DialogTitle>
+            <DialogDescription className="text-neutral-400">Registe uma entrada ou saída de material</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
               <div className="space-y-2">
-                <Label>Tipo Movimento *</Label>
+                <Label className="text-neutral-300">Tipo Movimento *</Label>
                 <Select value={formData.tipo_movimento} onValueChange={(v) => setFormData({...formData, tipo_movimento: v})}>
-                  <SelectTrigger className="rounded-sm"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {tipoMovOptions.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white"><SelectValue /></SelectTrigger>
+                  <SelectContent className="bg-neutral-800 border-neutral-700">
+                    {tipoMovOptions.map(t => <SelectItem key={t} value={t} className="text-white hover:bg-neutral-700">{t}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Material *</Label>
+                <Label className="text-neutral-300">Material *</Label>
                 <Select value={formData.material_id} onValueChange={(v) => setFormData({...formData, material_id: v})}>
-                  <SelectTrigger className="rounded-sm"><SelectValue placeholder="Selecione" /></SelectTrigger>
-                  <SelectContent>
-                    {materiais.map(m => <SelectItem key={m.id} value={m.id}>{m.codigo} - {m.descricao}</SelectItem>)}
+                  <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white"><SelectValue placeholder="Selecione" /></SelectTrigger>
+                  <SelectContent className="bg-neutral-800 border-neutral-700">
+                    {materiais.map(m => <SelectItem key={m.id} value={m.id} className="text-white hover:bg-neutral-700">{m.codigo} - {m.descricao}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Quantidade *</Label>
-                <Input type="number" step="0.01" min="0" value={formData.quantidade} onChange={(e) => setFormData({...formData, quantidade: e.target.value})} required className="rounded-sm" />
+                <Label className="text-neutral-300">Quantidade *</Label>
+                <Input type="number" step="0.01" min="0" value={formData.quantidade} onChange={(e) => setFormData({...formData, quantidade: e.target.value})} required className="bg-neutral-800 border-neutral-700 text-white" />
               </div>
               <div className="space-y-2">
-                <Label>Obra</Label>
+                <Label className="text-neutral-300">Obra</Label>
                 <Select value={formData.obra_id || "none"} onValueChange={(v) => setFormData({...formData, obra_id: v === "none" ? "" : v})}>
-                  <SelectTrigger className="rounded-sm"><SelectValue placeholder="Selecione" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Nenhuma</SelectItem>
-                    {obras.map(o => <SelectItem key={o.id} value={o.id}>{o.codigo} - {o.nome}</SelectItem>)}
+                  <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white"><SelectValue placeholder="Selecione" /></SelectTrigger>
+                  <SelectContent className="bg-neutral-800 border-neutral-700">
+                    <SelectItem value="none" className="text-white hover:bg-neutral-700">Nenhuma</SelectItem>
+                    {obras.map(o => <SelectItem key={o.id} value={o.id} className="text-white hover:bg-neutral-700">{o.codigo} - {o.nome}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Fornecedor</Label>
-                <Input value={formData.fornecedor} onChange={(e) => setFormData({...formData, fornecedor: e.target.value})} className="rounded-sm" />
+                <Label className="text-neutral-300">Fornecedor</Label>
+                <Input value={formData.fornecedor} onChange={(e) => setFormData({...formData, fornecedor: e.target.value})} className="bg-neutral-800 border-neutral-700 text-white" />
               </div>
               <div className="space-y-2">
-                <Label>Documento</Label>
-                <Input value={formData.documento} onChange={(e) => setFormData({...formData, documento: e.target.value})} placeholder="Nº Fatura, Guia, etc." className="rounded-sm" />
+                <Label className="text-neutral-300">Documento</Label>
+                <Input value={formData.documento} onChange={(e) => setFormData({...formData, documento: e.target.value})} placeholder="Nº Fatura, Guia, etc." className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500" />
               </div>
               <div className="space-y-2 md:col-span-2">
-                <Label>Responsável</Label>
-                <Input value={formData.responsavel} onChange={(e) => setFormData({...formData, responsavel: e.target.value})} className="rounded-sm" />
+                <Label className="text-neutral-300">Responsável</Label>
+                <Input value={formData.responsavel} onChange={(e) => setFormData({...formData, responsavel: e.target.value})} className="bg-neutral-800 border-neutral-700 text-white" />
               </div>
               <div className="space-y-2 md:col-span-2">
-                <Label>Observações</Label>
-                <Textarea value={formData.observacoes} onChange={(e) => setFormData({...formData, observacoes: e.target.value})} rows={2} className="rounded-sm" />
+                <Label className="text-neutral-300">Observações</Label>
+                <Textarea value={formData.observacoes} onChange={(e) => setFormData({...formData, observacoes: e.target.value})} rows={2} className="bg-neutral-800 border-neutral-700 text-white" />
               </div>
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} className="rounded-sm">Cancelar</Button>
-              <Button type="submit" className="btn-primary" disabled={!formData.material_id || !formData.quantidade}>Registar</Button>
+              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} className="border-neutral-600 text-neutral-300 hover:bg-neutral-800">Cancelar</Button>
+              <Button type="submit" className="bg-orange-500 hover:bg-orange-600 text-black font-semibold" disabled={!formData.material_id || !formData.quantidade}>Registar</Button>
             </DialogFooter>
           </form>
         </DialogContent>
