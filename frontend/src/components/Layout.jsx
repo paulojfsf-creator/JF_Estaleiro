@@ -6,7 +6,6 @@ import {
   Wrench,
   Truck,
   Package,
-  MapPin,
   Building2,
   ArrowLeftRight,
   FileText,
@@ -15,7 +14,9 @@ import {
   LogOut,
   User,
   ChevronLeft,
-  ChevronDown
+  ChevronDown,
+  Upload,
+  Download
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -30,12 +31,13 @@ import {
 } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 
+const LOGO_URL = "https://customer-assets.emergentagent.com/job_construction-hub-119/artifacts/t5nlg1av_logo_jose_firmino_word-removebg-preview.png";
+
 const navItems = [
   { path: "/", icon: LayoutDashboard, label: "Dashboard" },
   { path: "/equipamentos", icon: Wrench, label: "Equipamentos" },
   { path: "/viaturas", icon: Truck, label: "Viaturas" },
   { path: "/materiais", icon: Package, label: "Materiais" },
-  { path: "/locais", icon: MapPin, label: "Locais" },
   { path: "/obras", icon: Building2, label: "Obras" },
 ];
 
@@ -58,7 +60,7 @@ export default function Layout() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-neutral-900">
       {mobileOpen && (
         <div 
           className="fixed inset-0 bg-black/50 z-40 md:hidden"
@@ -67,28 +69,32 @@ export default function Layout() {
       )}
 
       <aside 
-        className={`fixed left-0 top-0 h-full bg-slate-900 text-white transition-all duration-300 z-50 overflow-y-auto
+        className={`fixed left-0 top-0 h-full bg-neutral-950 text-white transition-all duration-300 z-50 overflow-y-auto
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} 
           md:translate-x-0 ${sidebarOpen ? 'w-64' : 'w-20'}`}
       >
-        <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800">
+        <div className="h-20 flex items-center justify-between px-4 border-b border-neutral-800">
           {sidebarOpen && (
-            <div className="flex items-center gap-2">
-              <Building2 className="h-8 w-8 text-amber-500" />
-              <span className="font-black text-lg tracking-tight">ARMAZÉM</span>
+            <div className="flex items-center">
+              <img 
+                src={LOGO_URL} 
+                alt="José Firmino" 
+                className="h-12 w-auto object-contain"
+                onError={(e) => { e.target.style.display = 'none'; }}
+              />
             </div>
           )}
           <button
             data-testid="toggle-sidebar-btn"
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 hover:bg-slate-800 rounded-sm hidden md:block"
+            className="p-2 hover:bg-neutral-800 rounded-sm hidden md:block"
           >
             <ChevronLeft className={`h-5 w-5 transition-transform ${!sidebarOpen ? 'rotate-180' : ''}`} />
           </button>
           <button
             data-testid="close-mobile-sidebar-btn"
             onClick={() => setMobileOpen(false)}
-            className="p-2 hover:bg-slate-800 rounded-sm md:hidden"
+            className="p-2 hover:bg-neutral-800 rounded-sm md:hidden"
           >
             <X className="h-5 w-5" />
           </button>
@@ -103,8 +109,8 @@ export default function Layout() {
               data-testid={`nav-${item.label.toLowerCase().replace(/\s/g, '-')}`}
               onClick={() => setMobileOpen(false)}
               className={({ isActive }) => 
-                `flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors
-                ${isActive ? 'bg-slate-800 text-white border-l-4 border-amber-500' : ''}`
+                `flex items-center gap-3 px-4 py-3 text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors
+                ${isActive ? 'bg-neutral-800 text-white border-l-4 border-orange-500' : ''}`
               }
             >
               <item.icon className="h-5 w-5 flex-shrink-0" />
@@ -114,7 +120,7 @@ export default function Layout() {
           
           {/* Movimentos Collapsible */}
           <Collapsible open={movimentosOpen} onOpenChange={setMovimentosOpen}>
-            <CollapsibleTrigger className="flex items-center gap-3 px-4 py-3 w-full text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+            <CollapsibleTrigger className="flex items-center gap-3 px-4 py-3 w-full text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors">
               <ArrowLeftRight className="h-5 w-5 flex-shrink-0" />
               {sidebarOpen && (
                 <>
@@ -130,8 +136,8 @@ export default function Layout() {
                   to={item.path}
                   onClick={() => setMobileOpen(false)}
                   className={({ isActive }) => 
-                    `flex items-center gap-3 px-4 py-2 pl-12 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors text-sm
-                    ${isActive ? 'bg-slate-800 text-white' : ''}`
+                    `flex items-center gap-3 px-4 py-2 pl-12 text-neutral-500 hover:bg-neutral-800 hover:text-white transition-colors text-sm
+                    ${isActive ? 'bg-neutral-800 text-white' : ''}`
                   }
                 >
                   {sidebarOpen && <span>{item.label}</span>}
@@ -145,8 +151,8 @@ export default function Layout() {
             data-testid="nav-relatorios"
             onClick={() => setMobileOpen(false)}
             className={({ isActive }) => 
-              `flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors
-              ${isActive ? 'bg-slate-800 text-white border-l-4 border-amber-500' : ''}`
+              `flex items-center gap-3 px-4 py-3 text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors
+              ${isActive ? 'bg-neutral-800 text-white border-l-4 border-orange-500' : ''}`
             }
           >
             <FileText className="h-5 w-5 flex-shrink-0" />
@@ -156,11 +162,11 @@ export default function Layout() {
       </aside>
 
       <div className={`transition-all duration-300 ${sidebarOpen ? 'md:ml-64' : 'md:ml-20'}`}>
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-6 sticky top-0 z-30">
+        <header className="h-16 bg-neutral-950 border-b border-neutral-800 flex items-center justify-between px-4 md:px-6 sticky top-0 z-30">
           <button
             data-testid="open-mobile-sidebar-btn"
             onClick={() => setMobileOpen(true)}
-            className="p-2 hover:bg-slate-100 rounded-sm md:hidden"
+            className="p-2 hover:bg-neutral-800 rounded-sm md:hidden text-white"
           >
             <Menu className="h-5 w-5" />
           </button>
@@ -169,15 +175,15 @@ export default function Layout() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-2" data-testid="user-menu-btn">
-                <div className="h-8 w-8 bg-slate-900 rounded-full flex items-center justify-center">
-                  <User className="h-4 w-4 text-white" />
+              <Button variant="ghost" className="flex items-center gap-2 text-neutral-300 hover:text-white hover:bg-neutral-800" data-testid="user-menu-btn">
+                <div className="h-8 w-8 bg-orange-500 rounded-full flex items-center justify-center">
+                  <User className="h-4 w-4 text-black" />
                 </div>
                 <span className="hidden md:block text-sm font-medium">{user?.name}</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={handleLogout} data-testid="logout-btn">
+            <DropdownMenuContent align="end" className="w-48 bg-neutral-900 border-neutral-700">
+              <DropdownMenuItem onClick={handleLogout} data-testid="logout-btn" className="text-neutral-300 hover:text-white focus:bg-neutral-800">
                 <LogOut className="h-4 w-4 mr-2" />
                 Terminar Sessão
               </DropdownMenuItem>
