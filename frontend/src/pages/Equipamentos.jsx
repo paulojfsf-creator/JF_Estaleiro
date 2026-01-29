@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useAuth, API } from "@/App";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Wrench, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Wrench, Search, Eye, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -39,7 +40,7 @@ const estadoOptions = ["Bom", "Razoável", "Mau"];
 export default function Equipamentos() {
   const { token } = useAuth();
   const [equipamentos, setEquipamentos] = useState([]);
-  const [locais, setLocais] = useState([]);
+  const [obras, setObras] = useState([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -54,10 +55,9 @@ export default function Equipamentos() {
     ativo: true,
     categoria: "",
     numero_serie: "",
-    responsavel: "",
     estado_conservacao: "Bom",
     foto: "",
-    local_id: ""
+    obra_id: ""
   });
 
   useEffect(() => {
@@ -66,12 +66,12 @@ export default function Equipamentos() {
 
   const fetchData = async () => {
     try {
-      const [eqRes, locRes] = await Promise.all([
+      const [eqRes, obrasRes] = await Promise.all([
         axios.get(`${API}/equipamentos`, { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get(`${API}/locais`, { headers: { Authorization: `Bearer ${token}` } })
+        axios.get(`${API}/obras`, { headers: { Authorization: `Bearer ${token}` } })
       ]);
       setEquipamentos(eqRes.data);
-      setLocais(locRes.data);
+      setObras(obrasRes.data);
     } catch (error) {
       toast.error("Erro ao carregar dados");
     } finally {
@@ -82,7 +82,7 @@ export default function Equipamentos() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const payload = { ...formData, local_id: formData.local_id || null };
+      const payload = { ...formData, obra_id: formData.obra_id || null };
       if (selectedItem) {
         await axios.put(`${API}/equipamentos/${selectedItem.id}`, payload, {
           headers: { Authorization: `Bearer ${token}` }
@@ -127,10 +127,9 @@ export default function Equipamentos() {
       ativo: item.ativo ?? true,
       categoria: item.categoria || "",
       numero_serie: item.numero_serie || "",
-      responsavel: item.responsavel || "",
       estado_conservacao: item.estado_conservacao || "Bom",
       foto: item.foto || "",
-      local_id: item.local_id || ""
+      obra_id: item.obra_id || ""
     });
     setDialogOpen(true);
   };
@@ -139,8 +138,8 @@ export default function Equipamentos() {
     setSelectedItem(null);
     setFormData({
       codigo: "", descricao: "", marca: "", modelo: "", data_aquisicao: "",
-      ativo: true, categoria: "", numero_serie: "", responsavel: "",
-      estado_conservacao: "Bom", foto: "", local_id: ""
+      ativo: true, categoria: "", numero_serie: "",
+      estado_conservacao: "Bom", foto: "", obra_id: ""
     });
   };
 
@@ -150,81 +149,93 @@ export default function Equipamentos() {
     e.marca?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const getLocalName = (localId) => {
-    const local = locais.find(l => l.id === localId);
-    return local ? `${local.codigo} - ${local.nome}` : "-";
+  const getObraName = (obraId) => {
+    const obra = obras.find(o => o.id === obraId);
+    return obra ? obra.nome : null;
   };
 
-  if (loading) return <div className="flex items-center justify-center h-64"><div className="text-slate-500">A carregar...</div></div>;
+  if (loading) return <div className="flex items-center justify-center h-64"><div className="text-neutral-400">A carregar...</div></div>;
 
   return (
     <div data-testid="equipamentos-page">
-      <div className="page-header flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
-          <h1 className="page-title flex items-center gap-3">
-            <Wrench className="h-8 w-8 text-amber-500" />
+          <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+            <Wrench className="h-7 w-7 text-orange-500" />
             Equipamentos
           </h1>
-          <p className="page-subtitle">Gestão de equipamentos do armazém</p>
+          <p className="text-neutral-400 text-sm mt-1">Gestão de equipamentos do armazém</p>
         </div>
-        <Button onClick={() => { resetForm(); setDialogOpen(true); }} className="btn-primary" data-testid="add-equipamento-btn">
+        <Button onClick={() => { resetForm(); setDialogOpen(true); }} className="bg-orange-500 hover:bg-orange-600 text-black font-semibold" data-testid="add-equipamento-btn">
           <Plus className="h-4 w-4 mr-2" /> Novo Equipamento
         </Button>
       </div>
 
       {/* Search */}
       <div className="mb-6 relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
         <Input
           placeholder="Pesquisar por código, descrição ou marca..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10 rounded-sm"
+          className="pl-10 bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
           data-testid="search-input"
         />
       </div>
 
       {filtered.length === 0 ? (
-        <div className="text-center py-12 bg-white border border-slate-200 rounded-sm">
-          <Wrench className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-          <p className="text-slate-500">{searchTerm ? "Nenhum resultado encontrado" : "Nenhum equipamento registado"}</p>
+        <div className="text-center py-12 bg-neutral-800 border border-neutral-700 rounded-lg">
+          <Wrench className="h-12 w-12 text-neutral-600 mx-auto mb-4" />
+          <p className="text-neutral-400">{searchTerm ? "Nenhum resultado encontrado" : "Nenhum equipamento registado"}</p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="data-table" data-testid="equipamentos-table">
+        <div className="overflow-x-auto bg-neutral-800 border border-neutral-700 rounded-lg">
+          <table className="w-full" data-testid="equipamentos-table">
             <thead>
-              <tr>
-                <th>Código</th>
-                <th>Descrição</th>
-                <th>Marca/Modelo</th>
-                <th>Categoria</th>
-                <th>Estado</th>
-                <th>Local</th>
-                <th>Ativo</th>
-                <th className="text-right">Ações</th>
+              <tr className="border-b border-neutral-700">
+                <th className="text-left py-3 px-4 text-neutral-400 font-medium text-sm">Código</th>
+                <th className="text-left py-3 px-4 text-neutral-400 font-medium text-sm">Descrição</th>
+                <th className="text-left py-3 px-4 text-neutral-400 font-medium text-sm">Marca/Modelo</th>
+                <th className="text-left py-3 px-4 text-neutral-400 font-medium text-sm">Estado</th>
+                <th className="text-left py-3 px-4 text-neutral-400 font-medium text-sm">Obra</th>
+                <th className="text-left py-3 px-4 text-neutral-400 font-medium text-sm">Ativo</th>
+                <th className="text-right py-3 px-4 text-neutral-400 font-medium text-sm">Ações</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((item) => (
-                <tr key={item.id} data-testid={`equipamento-row-${item.id}`}>
-                  <td className="font-mono text-sm font-medium">{item.codigo}</td>
-                  <td>{item.descricao}</td>
-                  <td className="text-slate-500">{item.marca} {item.modelo}</td>
-                  <td className="text-slate-500">{item.categoria || "-"}</td>
-                  <td>
-                    <span className={`badge ${item.estado_conservacao === "Bom" ? "status-available" : item.estado_conservacao === "Razoável" ? "status-maintenance" : "status-broken"}`}>
+                <tr key={item.id} className="border-b border-neutral-700/50 hover:bg-neutral-700/30" data-testid={`equipamento-row-${item.id}`}>
+                  <td className="py-3 px-4 font-mono text-sm text-orange-400">{item.codigo}</td>
+                  <td className="py-3 px-4 text-white">{item.descricao}</td>
+                  <td className="py-3 px-4 text-neutral-400">{item.marca} {item.modelo}</td>
+                  <td className="py-3 px-4">
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${item.estado_conservacao === "Bom" ? "bg-emerald-500/20 text-emerald-400" : item.estado_conservacao === "Razoável" ? "bg-amber-500/20 text-amber-400" : "bg-red-500/20 text-red-400"}`}>
                       {item.estado_conservacao}
                     </span>
                   </td>
-                  <td className="text-slate-500 text-sm">{getLocalName(item.local_id)}</td>
-                  <td>
-                    <span className={`h-2 w-2 rounded-full inline-block ${item.ativo ? "bg-emerald-500" : "bg-slate-300"}`} />
+                  <td className="py-3 px-4">
+                    {item.obra_id ? (
+                      <span className="flex items-center gap-1 text-orange-400 text-sm">
+                        <Building2 className="h-3 w-3" />
+                        {getObraName(item.obra_id)}
+                      </span>
+                    ) : (
+                      <span className="text-neutral-500 text-sm">Em armazém</span>
+                    )}
                   </td>
-                  <td className="text-right">
-                    <Button variant="ghost" size="sm" onClick={() => openEditDialog(item)} data-testid={`edit-${item.id}`}>
+                  <td className="py-3 px-4">
+                    <span className={`h-2 w-2 rounded-full inline-block ${item.ativo ? "bg-emerald-500" : "bg-neutral-500"}`} />
+                  </td>
+                  <td className="py-3 px-4 text-right">
+                    <Link to={`/equipamentos/${item.id}`}>
+                      <Button variant="ghost" size="sm" className="text-neutral-400 hover:text-white" data-testid={`view-${item.id}`}>
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                    <Button variant="ghost" size="sm" onClick={() => openEditDialog(item)} className="text-neutral-400 hover:text-white" data-testid={`edit-${item.id}`}>
                       <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={() => { setSelectedItem(item); setDeleteDialogOpen(true); }} className="text-red-500" data-testid={`delete-${item.id}`}>
+                    <Button variant="ghost" size="sm" onClick={() => { setSelectedItem(item); setDeleteDialogOpen(true); }} className="text-red-400 hover:text-red-300" data-testid={`delete-${item.id}`}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </td>
@@ -237,67 +248,63 @@ export default function Equipamentos() {
 
       {/* Form Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-neutral-900 border-neutral-700">
           <DialogHeader>
-            <DialogTitle>{selectedItem ? "Editar Equipamento" : "Novo Equipamento"}</DialogTitle>
-            <DialogDescription>Preencha os dados do equipamento</DialogDescription>
+            <DialogTitle className="text-white">{selectedItem ? "Editar Equipamento" : "Novo Equipamento"}</DialogTitle>
+            <DialogDescription className="text-neutral-400">Preencha os dados do equipamento</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
               <div className="space-y-2">
-                <Label>Código *</Label>
-                <Input value={formData.codigo} onChange={(e) => setFormData({...formData, codigo: e.target.value})} required data-testid="codigo-input" className="rounded-sm" />
+                <Label className="text-neutral-300">Código *</Label>
+                <Input value={formData.codigo} onChange={(e) => setFormData({...formData, codigo: e.target.value})} required data-testid="codigo-input" className="bg-neutral-800 border-neutral-700 text-white" />
               </div>
               <div className="space-y-2">
-                <Label>Descrição *</Label>
-                <Input value={formData.descricao} onChange={(e) => setFormData({...formData, descricao: e.target.value})} required data-testid="descricao-input" className="rounded-sm" />
+                <Label className="text-neutral-300">Descrição *</Label>
+                <Input value={formData.descricao} onChange={(e) => setFormData({...formData, descricao: e.target.value})} required data-testid="descricao-input" className="bg-neutral-800 border-neutral-700 text-white" />
               </div>
               <div className="space-y-2">
-                <Label>Marca</Label>
-                <Input value={formData.marca} onChange={(e) => setFormData({...formData, marca: e.target.value})} data-testid="marca-input" className="rounded-sm" />
+                <Label className="text-neutral-300">Marca</Label>
+                <Input value={formData.marca} onChange={(e) => setFormData({...formData, marca: e.target.value})} data-testid="marca-input" className="bg-neutral-800 border-neutral-700 text-white" />
               </div>
               <div className="space-y-2">
-                <Label>Modelo</Label>
-                <Input value={formData.modelo} onChange={(e) => setFormData({...formData, modelo: e.target.value})} data-testid="modelo-input" className="rounded-sm" />
+                <Label className="text-neutral-300">Modelo</Label>
+                <Input value={formData.modelo} onChange={(e) => setFormData({...formData, modelo: e.target.value})} data-testid="modelo-input" className="bg-neutral-800 border-neutral-700 text-white" />
               </div>
               <div className="space-y-2">
-                <Label>Categoria</Label>
-                <Input value={formData.categoria} onChange={(e) => setFormData({...formData, categoria: e.target.value})} placeholder="Ex: Aparafusadora, Aspirador" data-testid="categoria-input" className="rounded-sm" />
+                <Label className="text-neutral-300">Categoria</Label>
+                <Input value={formData.categoria} onChange={(e) => setFormData({...formData, categoria: e.target.value})} placeholder="Ex: Aparafusadora, Aspirador" data-testid="categoria-input" className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500" />
               </div>
               <div className="space-y-2">
-                <Label>Nº Série</Label>
-                <Input value={formData.numero_serie} onChange={(e) => setFormData({...formData, numero_serie: e.target.value})} data-testid="serie-input" className="rounded-sm" />
+                <Label className="text-neutral-300">Nº Série</Label>
+                <Input value={formData.numero_serie} onChange={(e) => setFormData({...formData, numero_serie: e.target.value})} data-testid="serie-input" className="bg-neutral-800 border-neutral-700 text-white" />
               </div>
               <div className="space-y-2">
-                <Label>Data Aquisição</Label>
-                <Input type="date" value={formData.data_aquisicao} onChange={(e) => setFormData({...formData, data_aquisicao: e.target.value})} data-testid="data-input" className="rounded-sm" />
+                <Label className="text-neutral-300">Data Aquisição</Label>
+                <Input type="date" value={formData.data_aquisicao} onChange={(e) => setFormData({...formData, data_aquisicao: e.target.value})} data-testid="data-input" className="bg-neutral-800 border-neutral-700 text-white" />
               </div>
               <div className="space-y-2">
-                <Label>Estado Conservação</Label>
+                <Label className="text-neutral-300">Estado Conservação</Label>
                 <Select value={formData.estado_conservacao} onValueChange={(v) => setFormData({...formData, estado_conservacao: v})}>
-                  <SelectTrigger className="rounded-sm" data-testid="estado-select"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {estadoOptions.map(e => <SelectItem key={e} value={e}>{e}</SelectItem>)}
+                  <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white" data-testid="estado-select"><SelectValue /></SelectTrigger>
+                  <SelectContent className="bg-neutral-800 border-neutral-700">
+                    {estadoOptions.map(e => <SelectItem key={e} value={e} className="text-white hover:bg-neutral-700">{e}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Responsável</Label>
-                <Input value={formData.responsavel} onChange={(e) => setFormData({...formData, responsavel: e.target.value})} data-testid="responsavel-input" className="rounded-sm" />
-              </div>
-              <div className="space-y-2">
-                <Label>Local</Label>
-                <Select value={formData.local_id || "none"} onValueChange={(v) => setFormData({...formData, local_id: v === "none" ? "" : v})}>
-                  <SelectTrigger className="rounded-sm" data-testid="local-select"><SelectValue placeholder="Selecione um local" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">Nenhum</SelectItem>
-                    {locais.map(l => <SelectItem key={l.id} value={l.id}>{l.codigo} - {l.nome}</SelectItem>)}
+                <Label className="text-neutral-300">Obra</Label>
+                <Select value={formData.obra_id || "none"} onValueChange={(v) => setFormData({...formData, obra_id: v === "none" ? "" : v})}>
+                  <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white" data-testid="obra-select"><SelectValue placeholder="Selecione uma obra" /></SelectTrigger>
+                  <SelectContent className="bg-neutral-800 border-neutral-700">
+                    <SelectItem value="none" className="text-white hover:bg-neutral-700">Em armazém</SelectItem>
+                    {obras.filter(o => o.estado === "Ativa").map(o => <SelectItem key={o.id} value={o.id} className="text-white hover:bg-neutral-700">{o.codigo} - {o.nome}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>URL Foto</Label>
-                <Input value={formData.foto} onChange={(e) => setFormData({...formData, foto: e.target.value})} placeholder="https://..." data-testid="foto-input" className="rounded-sm" />
+                <Label className="text-neutral-300">URL Foto</Label>
+                <Input value={formData.foto} onChange={(e) => setFormData({...formData, foto: e.target.value})} placeholder="https://..." data-testid="foto-input" className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500" />
               </div>
               <div className="md:col-span-2">
                 <ImageUpload 
@@ -308,12 +315,12 @@ export default function Equipamentos() {
               </div>
               <div className="flex items-center gap-3">
                 <Switch checked={formData.ativo} onCheckedChange={(v) => setFormData({...formData, ativo: v})} data-testid="ativo-switch" />
-                <Label>Ativo</Label>
+                <Label className="text-neutral-300">Ativo</Label>
               </div>
             </div>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} className="rounded-sm">Cancelar</Button>
-              <Button type="submit" className="btn-primary" data-testid="submit-btn">{selectedItem ? "Guardar" : "Criar"}</Button>
+              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} className="border-neutral-600 text-neutral-300 hover:bg-neutral-800">Cancelar</Button>
+              <Button type="submit" className="bg-orange-500 hover:bg-orange-600 text-black font-semibold" data-testid="submit-btn">{selectedItem ? "Guardar" : "Criar"}</Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -321,14 +328,14 @@ export default function Equipamentos() {
 
       {/* Delete Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-neutral-900 border-neutral-700">
           <AlertDialogHeader>
-            <AlertDialogTitle>Eliminar Equipamento</AlertDialogTitle>
-            <AlertDialogDescription>Tem a certeza que deseja eliminar "{selectedItem?.descricao}"?</AlertDialogDescription>
+            <AlertDialogTitle className="text-white">Eliminar Equipamento</AlertDialogTitle>
+            <AlertDialogDescription className="text-neutral-400">Tem a certeza que deseja eliminar "{selectedItem?.descricao}"?</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="btn-danger" data-testid="confirm-delete-btn">Eliminar</AlertDialogAction>
+            <AlertDialogCancel className="border-neutral-600 text-neutral-300 hover:bg-neutral-800">Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-500 hover:bg-red-600 text-white" data-testid="confirm-delete-btn">Eliminar</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
