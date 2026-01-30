@@ -146,6 +146,21 @@ class MovimentoCreate(BaseModel):
     data_devolucao: Optional[str] = None
     observacoes: str = ""
 
+class AtribuirRecursoRequest(BaseModel):
+    recurso_id: str
+    tipo_recurso: str  # equipamento, viatura
+    obra_id: str
+    responsavel_levantou: str = ""
+    data_levantamento: Optional[str] = None
+    observacoes: str = ""
+
+class DevolverRecursoRequest(BaseModel):
+    recurso_id: str
+    tipo_recurso: str  # equipamento, viatura
+    responsavel_devolveu: str = ""
+    data_devolucao: Optional[str] = None
+    observacoes: str = ""
+
 class Movimento(MovimentoCreate):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
