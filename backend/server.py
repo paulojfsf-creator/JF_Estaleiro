@@ -478,6 +478,21 @@ async def update_material(material_id: str, data: MaterialCreate, user=Depends(g
     await db.materiais.update_one({"id": material_id}, {"$set": data.model_dump()})
     return await db.materiais.find_one({"id": material_id}, {"_id": 0})
 
+@api_router.get("/materiais/{material_id}")
+async def get_material_detail(material_id: str, user=Depends(get_current_user)):
+    """Get material with movement history"""
+    material = await db.materiais.find_one({"id": material_id}, {"_id": 0})
+    if not material:
+        raise HTTPException(status_code=404, detail="Material não encontrado")
+    
+    # Get movement history
+    historico = await db.movimentos_stock.find(
+        {"material_id": material_id}, 
+        {"_id": 0}
+    ).sort("data_hora", -1).to_list(100)
+    
+    return {"material": material, "historico": historico}
+
 @api_router.delete("/materiais/{material_id}")
 async def delete_material(material_id: str, user=Depends(get_current_user)):
     result = await db.materiais.delete_one({"id": material_id})
