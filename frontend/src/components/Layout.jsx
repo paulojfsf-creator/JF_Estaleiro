@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
-import { useAuth } from "@/App";
+import { useAuth, useTheme } from "@/App";
 import {
   LayoutDashboard,
   Wrench,
@@ -15,8 +15,8 @@ import {
   User,
   ChevronLeft,
   ChevronDown,
-  Upload,
-  Download
+  Sun,
+  Moon
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -48,38 +48,44 @@ const movimentosItems = [
 ];
 
 export default function Layout() {
+  const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [movimentosOpen, setMovimentosOpen] = useState(false);
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
+  const isDark = theme === "dark";
+
   return (
-    <div className="min-h-screen bg-neutral-900">
+    <div className={`min-h-screen ${isDark ? 'bg-neutral-900' : 'bg-gray-100'}`}>
+      {/* Mobile overlay */}
       {mobileOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/50 z-40 md:hidden" 
           onClick={() => setMobileOpen(false)}
         />
       )}
 
+      {/* Sidebar */}
       <aside 
-        className={`fixed left-0 top-0 h-full bg-neutral-950 text-white transition-all duration-300 z-50 overflow-y-auto
+        className={`fixed left-0 top-0 h-full transition-all duration-300 z-50 overflow-y-auto
+          ${isDark ? 'bg-neutral-950 text-white' : 'bg-white text-gray-900 border-r border-gray-200'}
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} 
           md:translate-x-0 ${sidebarOpen ? 'w-64' : 'w-20'}`}
       >
-        <div className="h-20 flex items-center justify-between px-4 border-b border-neutral-800">
+        <div className={`h-20 flex items-center justify-between px-4 border-b ${isDark ? 'border-neutral-800' : 'border-gray-200'}`}>
           {sidebarOpen && (
             <div className="flex items-center">
               <img 
                 src={LOGO_URL} 
                 alt="José Firmino" 
-                className="h-12 w-auto object-contain"
+                className={`h-12 w-auto object-contain ${!isDark ? 'brightness-0' : ''}`}
                 onError={(e) => { e.target.style.display = 'none'; }}
               />
             </div>
@@ -87,14 +93,14 @@ export default function Layout() {
           <button
             data-testid="toggle-sidebar-btn"
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 hover:bg-neutral-800 rounded-sm hidden md:block"
+            className={`p-2 rounded-sm hidden md:block ${isDark ? 'hover:bg-neutral-800' : 'hover:bg-gray-100'}`}
           >
             <ChevronLeft className={`h-5 w-5 transition-transform ${!sidebarOpen ? 'rotate-180' : ''}`} />
           </button>
           <button
             data-testid="close-mobile-sidebar-btn"
             onClick={() => setMobileOpen(false)}
-            className="p-2 hover:bg-neutral-800 rounded-sm md:hidden"
+            className={`p-2 rounded-sm md:hidden ${isDark ? 'hover:bg-neutral-800' : 'hover:bg-gray-100'}`}
           >
             <X className="h-5 w-5" />
           </button>
@@ -109,8 +115,11 @@ export default function Layout() {
               data-testid={`nav-${item.label.toLowerCase().replace(/\s/g, '-')}`}
               onClick={() => setMobileOpen(false)}
               className={({ isActive }) => 
-                `flex items-center gap-3 px-4 py-3 text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors
-                ${isActive ? 'bg-neutral-800 text-white border-l-4 border-orange-500' : ''}`
+                `flex items-center gap-3 px-4 py-3 transition-colors
+                ${isDark 
+                  ? `text-neutral-400 hover:bg-neutral-800 hover:text-white ${isActive ? 'bg-neutral-800 text-white border-l-4 border-orange-500' : ''}`
+                  : `text-gray-600 hover:bg-gray-100 hover:text-gray-900 ${isActive ? 'bg-orange-50 text-orange-600 border-l-4 border-orange-500' : ''}`
+                }`
               }
             >
               <item.icon className="h-5 w-5 flex-shrink-0" />
@@ -120,7 +129,8 @@ export default function Layout() {
           
           {/* Movimentos Collapsible */}
           <Collapsible open={movimentosOpen} onOpenChange={setMovimentosOpen}>
-            <CollapsibleTrigger className="flex items-center gap-3 px-4 py-3 w-full text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors">
+            <CollapsibleTrigger className={`flex items-center gap-3 px-4 py-3 w-full transition-colors
+              ${isDark ? 'text-neutral-400 hover:bg-neutral-800 hover:text-white' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`}>
               <ArrowLeftRight className="h-5 w-5 flex-shrink-0" />
               {sidebarOpen && (
                 <>
@@ -136,8 +146,11 @@ export default function Layout() {
                   to={item.path}
                   onClick={() => setMobileOpen(false)}
                   className={({ isActive }) => 
-                    `flex items-center gap-3 px-4 py-2 pl-12 text-neutral-500 hover:bg-neutral-800 hover:text-white transition-colors text-sm
-                    ${isActive ? 'bg-neutral-800 text-white' : ''}`
+                    `flex items-center gap-3 px-4 py-2 pl-12 text-sm transition-colors
+                    ${isDark 
+                      ? `text-neutral-500 hover:bg-neutral-800 hover:text-white ${isActive ? 'bg-neutral-800 text-white' : ''}`
+                      : `text-gray-500 hover:bg-gray-100 hover:text-gray-900 ${isActive ? 'bg-gray-100 text-gray-900' : ''}`
+                    }`
                   }
                 >
                   {sidebarOpen && <span>{item.label}</span>}
@@ -151,8 +164,11 @@ export default function Layout() {
             data-testid="nav-relatorios"
             onClick={() => setMobileOpen(false)}
             className={({ isActive }) => 
-              `flex items-center gap-3 px-4 py-3 text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors
-              ${isActive ? 'bg-neutral-800 text-white border-l-4 border-orange-500' : ''}`
+              `flex items-center gap-3 px-4 py-3 transition-colors
+              ${isDark 
+                ? `text-neutral-400 hover:bg-neutral-800 hover:text-white ${isActive ? 'bg-neutral-800 text-white border-l-4 border-orange-500' : ''}`
+                : `text-gray-600 hover:bg-gray-100 hover:text-gray-900 ${isActive ? 'bg-orange-50 text-orange-600 border-l-4 border-orange-500' : ''}`
+              }`
             }
           >
             <FileText className="h-5 w-5 flex-shrink-0" />
@@ -161,29 +177,41 @@ export default function Layout() {
         </nav>
       </aside>
 
+      {/* Main content */}
       <div className={`transition-all duration-300 ${sidebarOpen ? 'md:ml-64' : 'md:ml-20'}`}>
-        <header className="h-16 bg-neutral-950 border-b border-neutral-800 flex items-center justify-between px-4 md:px-6 sticky top-0 z-30">
+        <header className={`h-16 flex items-center justify-between px-4 md:px-6 sticky top-0 z-30 border-b
+          ${isDark ? 'bg-neutral-950 border-neutral-800' : 'bg-white border-gray-200'}`}>
           <button
             data-testid="open-mobile-sidebar-btn"
             onClick={() => setMobileOpen(true)}
-            className="p-2 hover:bg-neutral-800 rounded-sm md:hidden text-white"
+            className={`p-2 rounded-sm md:hidden ${isDark ? 'hover:bg-neutral-800 text-white' : 'hover:bg-gray-100'}`}
           >
             <Menu className="h-5 w-5" />
           </button>
 
           <div className="flex-1" />
 
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className={`p-2 rounded-lg mr-2 transition-colors ${isDark ? 'hover:bg-neutral-800 text-neutral-400 hover:text-white' : 'hover:bg-gray-100 text-gray-500 hover:text-gray-900'}`}
+            data-testid="theme-toggle-btn"
+            title={isDark ? "Mudar para modo claro" : "Mudar para modo escuro"}
+          >
+            {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </button>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-2 text-neutral-300 hover:text-white hover:bg-neutral-800" data-testid="user-menu-btn">
+              <Button variant="ghost" className={`flex items-center gap-2 ${isDark ? 'text-neutral-300 hover:text-white hover:bg-neutral-800' : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'}`} data-testid="user-menu-btn">
                 <div className="h-8 w-8 bg-orange-500 rounded-full flex items-center justify-center">
-                  <User className="h-4 w-4 text-black" />
+                  <User className={`h-4 w-4 ${isDark ? 'text-black' : 'text-white'}`} />
                 </div>
                 <span className="hidden md:block text-sm font-medium">{user?.name}</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 bg-neutral-900 border-neutral-700">
-              <DropdownMenuItem onClick={handleLogout} data-testid="logout-btn" className="text-neutral-300 hover:text-white focus:bg-neutral-800">
+            <DropdownMenuContent align="end" className={`w-48 ${isDark ? 'bg-neutral-900 border-neutral-700' : 'bg-white border-gray-200'}`}>
+              <DropdownMenuItem onClick={handleLogout} data-testid="logout-btn" className={isDark ? 'text-neutral-300 hover:text-white focus:bg-neutral-800' : 'text-gray-700 hover:text-gray-900 focus:bg-gray-100'}>
                 <LogOut className="h-4 w-4 mr-2" />
                 Terminar Sessão
               </DropdownMenuItem>

@@ -12,6 +12,7 @@ import EquipamentoDetail from "@/pages/EquipamentoDetail";
 import Viaturas from "@/pages/Viaturas";
 import ViaturaDetail from "@/pages/ViaturaDetail";
 import Materiais from "@/pages/Materiais";
+import MaterialDetail from "@/pages/MaterialDetail";
 import Obras from "@/pages/Obras";
 import ObraDetail from "@/pages/ObraDetail";
 import MovimentosAtivos from "@/pages/MovimentosAtivos";
@@ -32,6 +33,40 @@ export const useAuth = () => {
     throw new Error("useAuth must be used within AuthProvider");
   }
   return context;
+};
+
+// Theme Context
+export const ThemeContext = createContext(null);
+
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error("useTheme must be used within ThemeProvider");
+  }
+  return context;
+};
+
+const ThemeProvider = ({ children }) => {
+  const [theme, setTheme] = useState(() => {
+    const saved = localStorage.getItem("theme");
+    return saved || "dark";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("theme", theme);
+    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.add(theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === "dark" ? "light" : "dark");
+  };
+
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
 };
 
 const AuthProvider = ({ children }) => {
@@ -91,11 +126,12 @@ const AuthProvider = ({ children }) => {
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
+  const { theme } = useTheme();
   
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-slate-500">A carregar...</div>
+      <div className={`min-h-screen flex items-center justify-center ${theme === 'dark' ? 'bg-neutral-900 text-neutral-400' : 'bg-gray-50 text-gray-500'}`}>
+        <div>A carregar...</div>
       </div>
     );
   }
@@ -109,32 +145,35 @@ const ProtectedRoute = ({ children }) => {
 
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Toaster position="top-right" richColors />
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={
-            <ProtectedRoute>
-              <Layout />
-            </ProtectedRoute>
-          }>
-            <Route index element={<Dashboard />} />
-            <Route path="equipamentos" element={<Equipamentos />} />
-            <Route path="equipamentos/:id" element={<EquipamentoDetail />} />
-            <Route path="viaturas" element={<Viaturas />} />
-            <Route path="viaturas/:id" element={<ViaturaDetail />} />
-            <Route path="materiais" element={<Materiais />} />
-            <Route path="obras" element={<Obras />} />
-            <Route path="obras/:id" element={<ObraDetail />} />
-            <Route path="movimentos/ativos" element={<MovimentosAtivos />} />
-            <Route path="movimentos/stock" element={<MovimentosStock />} />
-            <Route path="movimentos/viaturas" element={<MovimentosViaturas />} />
-            <Route path="relatorios" element={<Reports />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <Toaster position="top-right" richColors />
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={
+              <ProtectedRoute>
+                <Layout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<Dashboard />} />
+              <Route path="equipamentos" element={<Equipamentos />} />
+              <Route path="equipamentos/:id" element={<EquipamentoDetail />} />
+              <Route path="viaturas" element={<Viaturas />} />
+              <Route path="viaturas/:id" element={<ViaturaDetail />} />
+              <Route path="materiais" element={<Materiais />} />
+              <Route path="materiais/:id" element={<MaterialDetail />} />
+              <Route path="obras" element={<Obras />} />
+              <Route path="obras/:id" element={<ObraDetail />} />
+              <Route path="movimentos/ativos" element={<MovimentosAtivos />} />
+              <Route path="movimentos/stock" element={<MovimentosStock />} />
+              <Route path="movimentos/viaturas" element={<MovimentosViaturas />} />
+              <Route path="relatorios" element={<Reports />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
