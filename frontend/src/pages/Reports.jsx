@@ -489,7 +489,7 @@ export default function Reports() {
                 </CardTitle>
                 <CardDescription className={isDark ? 'text-neutral-400' : 'text-gray-500'}>
                   {relatorioObra.obra.codigo} • {relatorioObra.obra.endereco || "Sem endereço"} •
-                  {filtroMes ? ` ${meses.find(m => m.value === filtroMes)?.label}` : ""} {filtroAno}
+                  {filtroMes && filtroMes !== "all" ? ` ${meses.find(m => m.value === filtroMes)?.label}` : ""} {filtroAno}
                 </CardDescription>
               </CardHeader>
               <CardContent>
