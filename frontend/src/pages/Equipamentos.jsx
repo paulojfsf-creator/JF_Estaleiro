@@ -201,6 +201,16 @@ export default function Equipamentos() {
     return obra ? obra.nome : null;
   };
 
+  const getPhotoUrl = (foto) => {
+    if (!foto) return null;
+    return foto.startsWith('/api') ? `${process.env.REACT_APP_BACKEND_URL}${foto}` : foto;
+  };
+
+  // Input classes for light/dark mode
+  const inputClass = isDark 
+    ? 'bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500' 
+    : 'bg-white border-gray-300 text-gray-900 placeholder:text-gray-400';
+
   if (loading) return <div className={`flex items-center justify-center h-64 ${isDark ? 'text-neutral-400' : 'text-gray-500'}`}>A carregar...</div>;
 
   return (
@@ -225,7 +235,7 @@ export default function Equipamentos() {
           placeholder="Pesquisar por código, descrição ou marca..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className={`pl-10 ${isDark ? 'bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500' : 'bg-white border-gray-300 text-gray-900 placeholder:text-gray-400'}`}
+          className={`pl-10 ${inputClass}`}
           data-testid="search-input"
         />
       </div>
@@ -242,6 +252,7 @@ export default function Equipamentos() {
             <table className="w-full" data-testid="equipamentos-table">
               <thead>
                 <tr className={`border-b ${isDark ? 'border-neutral-700' : 'border-gray-200'}`}>
+                  <th className={`text-left py-3 px-4 font-medium text-sm ${isDark ? 'text-neutral-400' : 'text-gray-500'}`}>Foto</th>
                   <th className={`text-left py-3 px-4 font-medium text-sm ${isDark ? 'text-neutral-400' : 'text-gray-500'}`}>Código</th>
                   <th className={`text-left py-3 px-4 font-medium text-sm ${isDark ? 'text-neutral-400' : 'text-gray-500'}`}>Descrição</th>
                   <th className={`text-left py-3 px-4 font-medium text-sm ${isDark ? 'text-neutral-400' : 'text-gray-500'}`}>Marca/Modelo</th>
@@ -258,6 +269,20 @@ export default function Equipamentos() {
                     onClick={() => navigate(`/equipamentos/${item.id}`)}
                     data-testid={`equipamento-row-${item.id}`}
                   >
+                    <td className="py-2 px-4">
+                      {item.foto ? (
+                        <img 
+                          src={getPhotoUrl(item.foto)} 
+                          alt={item.descricao}
+                          className="h-12 w-12 object-cover rounded-lg"
+                          onError={(e) => { e.target.style.display = 'none'; }}
+                        />
+                      ) : (
+                        <div className={`h-12 w-12 rounded-lg flex items-center justify-center ${isDark ? 'bg-neutral-700' : 'bg-gray-100'}`}>
+                          <Wrench className={`h-5 w-5 ${isDark ? 'text-neutral-500' : 'text-gray-400'}`} />
+                        </div>
+                      )}
+                    </td>
                     <td className="py-3 px-4 font-mono text-sm text-orange-500">{item.codigo}</td>
                     <td className={`py-3 px-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>{item.descricao}</td>
                     <td className={`py-3 px-4 ${isDark ? 'text-neutral-400' : 'text-gray-500'}`}>{item.marca} {item.modelo}</td>
@@ -308,13 +333,25 @@ export default function Equipamentos() {
                 onClick={() => navigate(`/equipamentos/${item.id}`)}
                 data-testid={`equipamento-card-${item.id}`}
               >
-                <div className="flex items-start justify-between mb-2">
-                  <div>
+                <div className="flex gap-3 mb-3">
+                  {item.foto ? (
+                    <img 
+                      src={getPhotoUrl(item.foto)} 
+                      alt={item.descricao}
+                      className="h-16 w-16 object-cover rounded-lg flex-shrink-0"
+                      onError={(e) => { e.target.style.display = 'none'; }}
+                    />
+                  ) : (
+                    <div className={`h-16 w-16 rounded-lg flex items-center justify-center flex-shrink-0 ${isDark ? 'bg-neutral-700' : 'bg-gray-100'}`}>
+                      <Wrench className={`h-6 w-6 ${isDark ? 'text-neutral-500' : 'text-gray-400'}`} />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
                     <span className="font-mono text-sm text-orange-500">{item.codigo}</span>
-                    <h3 className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>{item.descricao}</h3>
+                    <h3 className={`font-medium truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>{item.descricao}</h3>
                     <p className={`text-sm ${isDark ? 'text-neutral-400' : 'text-gray-500'}`}>{item.marca} {item.modelo}</p>
                   </div>
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${item.estado_conservacao === "Bom" ? "bg-emerald-500/20 text-emerald-500" : item.estado_conservacao === "Razoável" ? "bg-amber-500/20 text-amber-500" : "bg-red-500/20 text-red-500"}`}>
+                  <span className={`px-2 py-1 rounded text-xs font-medium h-fit ${item.estado_conservacao === "Bom" ? "bg-emerald-500/20 text-emerald-500" : item.estado_conservacao === "Razoável" ? "bg-amber-500/20 text-amber-500" : "bg-red-500/20 text-red-500"}`}>
                     {item.estado_conservacao}
                   </span>
                 </div>
@@ -357,44 +394,44 @@ export default function Equipamentos() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
               <div className="space-y-2">
                 <Label className={isDark ? 'text-neutral-300' : 'text-gray-700'}>Código *</Label>
-                <Input value={formData.codigo} onChange={(e) => setFormData({...formData, codigo: e.target.value})} required data-testid="codigo-input" className={isDark ? 'bg-neutral-800 border-neutral-700 text-white' : 'bg-white border-gray-300'} />
+                <Input value={formData.codigo} onChange={(e) => setFormData({...formData, codigo: e.target.value})} required data-testid="codigo-input" className={inputClass} />
               </div>
               <div className="space-y-2">
                 <Label className={isDark ? 'text-neutral-300' : 'text-gray-700'}>Descrição *</Label>
-                <Input value={formData.descricao} onChange={(e) => setFormData({...formData, descricao: e.target.value})} required data-testid="descricao-input" className={isDark ? 'bg-neutral-800 border-neutral-700 text-white' : 'bg-white border-gray-300'} />
+                <Input value={formData.descricao} onChange={(e) => setFormData({...formData, descricao: e.target.value})} required data-testid="descricao-input" className={inputClass} />
               </div>
               <div className="space-y-2">
                 <Label className={isDark ? 'text-neutral-300' : 'text-gray-700'}>Marca</Label>
-                <Input value={formData.marca} onChange={(e) => setFormData({...formData, marca: e.target.value})} className={isDark ? 'bg-neutral-800 border-neutral-700 text-white' : 'bg-white border-gray-300'} />
+                <Input value={formData.marca} onChange={(e) => setFormData({...formData, marca: e.target.value})} className={inputClass} />
               </div>
               <div className="space-y-2">
                 <Label className={isDark ? 'text-neutral-300' : 'text-gray-700'}>Modelo</Label>
-                <Input value={formData.modelo} onChange={(e) => setFormData({...formData, modelo: e.target.value})} className={isDark ? 'bg-neutral-800 border-neutral-700 text-white' : 'bg-white border-gray-300'} />
+                <Input value={formData.modelo} onChange={(e) => setFormData({...formData, modelo: e.target.value})} className={inputClass} />
               </div>
               <div className="space-y-2">
                 <Label className={isDark ? 'text-neutral-300' : 'text-gray-700'}>Categoria</Label>
-                <Input value={formData.categoria} onChange={(e) => setFormData({...formData, categoria: e.target.value})} placeholder="Ex: Aparafusadora" className={isDark ? 'bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500' : 'bg-white border-gray-300 placeholder:text-gray-400'} />
+                <Input value={formData.categoria} onChange={(e) => setFormData({...formData, categoria: e.target.value})} placeholder="Ex: Aparafusadora" className={inputClass} />
               </div>
               <div className="space-y-2">
                 <Label className={isDark ? 'text-neutral-300' : 'text-gray-700'}>Nº Série</Label>
-                <Input value={formData.numero_serie} onChange={(e) => setFormData({...formData, numero_serie: e.target.value})} className={isDark ? 'bg-neutral-800 border-neutral-700 text-white' : 'bg-white border-gray-300'} />
+                <Input value={formData.numero_serie} onChange={(e) => setFormData({...formData, numero_serie: e.target.value})} className={inputClass} />
               </div>
               <div className="space-y-2">
                 <Label className={isDark ? 'text-neutral-300' : 'text-gray-700'}>Data Aquisição</Label>
-                <Input type="date" value={formData.data_aquisicao} onChange={(e) => setFormData({...formData, data_aquisicao: e.target.value})} className={isDark ? 'bg-neutral-800 border-neutral-700 text-white' : 'bg-white border-gray-300'} />
+                <Input type="date" value={formData.data_aquisicao} onChange={(e) => setFormData({...formData, data_aquisicao: e.target.value})} className={inputClass} />
               </div>
               <div className="space-y-2">
                 <Label className={isDark ? 'text-neutral-300' : 'text-gray-700'}>Estado Conservação</Label>
                 <Select value={formData.estado_conservacao} onValueChange={(v) => setFormData({...formData, estado_conservacao: v})}>
-                  <SelectTrigger className={isDark ? 'bg-neutral-800 border-neutral-700 text-white' : 'bg-white border-gray-300'}><SelectValue /></SelectTrigger>
+                  <SelectTrigger className={inputClass}><SelectValue /></SelectTrigger>
                   <SelectContent className={isDark ? 'bg-neutral-800 border-neutral-700' : 'bg-white border-gray-200'}>
-                    {estadoOptions.map(e => <SelectItem key={e} value={e} className={isDark ? 'text-white hover:bg-neutral-700' : ''}>{e}</SelectItem>)}
+                    {estadoOptions.map(e => <SelectItem key={e} value={e} className={isDark ? 'text-white hover:bg-neutral-700' : 'text-gray-900'}>{e}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
                 <Label className={isDark ? 'text-neutral-300' : 'text-gray-700'}>URL Foto</Label>
-                <Input value={formData.foto} onChange={(e) => setFormData({...formData, foto: e.target.value})} placeholder="https://..." className={isDark ? 'bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500' : 'bg-white border-gray-300 placeholder:text-gray-400'} />
+                <Input value={formData.foto} onChange={(e) => setFormData({...formData, foto: e.target.value})} placeholder="https://..." className={inputClass} />
               </div>
               <div className="md:col-span-2">
                 <ImageUpload value={formData.foto} onChange={(url) => setFormData({...formData, foto: url})} label="Ou carregar foto" />
@@ -405,7 +442,7 @@ export default function Equipamentos() {
               </div>
             </div>
             <DialogFooter className="flex-col sm:flex-row gap-2">
-              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} className={`w-full sm:w-auto ${isDark ? 'border-neutral-600 text-neutral-300 hover:bg-neutral-800' : 'border-gray-300'}`}>Cancelar</Button>
+              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} className={`w-full sm:w-auto ${isDark ? 'border-neutral-600 text-neutral-300 hover:bg-neutral-800' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}>Cancelar</Button>
               <Button type="submit" className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-black font-semibold">{selectedItem ? "Guardar" : "Criar"}</Button>
             </DialogFooter>
           </form>
@@ -425,19 +462,19 @@ export default function Equipamentos() {
             <div className="space-y-2">
               <Label className={isDark ? 'text-neutral-300' : 'text-gray-700'}>Obra *</Label>
               <Select value={atribuirData.obra_id} onValueChange={(v) => setAtribuirData({...atribuirData, obra_id: v})}>
-                <SelectTrigger className={isDark ? 'bg-neutral-800 border-neutral-700 text-white' : 'bg-white border-gray-300'}><SelectValue placeholder="Selecione uma obra" /></SelectTrigger>
+                <SelectTrigger className={inputClass}><SelectValue placeholder="Selecione uma obra" /></SelectTrigger>
                 <SelectContent className={isDark ? 'bg-neutral-800 border-neutral-700' : 'bg-white border-gray-200'}>
-                  {obras.filter(o => o.estado === "Ativa").map(o => <SelectItem key={o.id} value={o.id} className={isDark ? 'text-white hover:bg-neutral-700' : ''}>{o.codigo} - {o.nome}</SelectItem>)}
+                  {obras.filter(o => o.estado === "Ativa").map(o => <SelectItem key={o.id} value={o.id} className={isDark ? 'text-white hover:bg-neutral-700' : 'text-gray-900'}>{o.codigo} - {o.nome}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
               <Label className={isDark ? 'text-neutral-300' : 'text-gray-700'}>Responsável pelo levantamento</Label>
-              <Input value={atribuirData.responsavel_levantou} onChange={(e) => setAtribuirData({...atribuirData, responsavel_levantou: e.target.value})} placeholder="Nome de quem levantou" className={isDark ? 'bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500' : 'bg-white border-gray-300 placeholder:text-gray-400'} />
+              <Input value={atribuirData.responsavel_levantou} onChange={(e) => setAtribuirData({...atribuirData, responsavel_levantou: e.target.value})} placeholder="Nome de quem levantou" className={inputClass} />
             </div>
           </div>
           <DialogFooter className="flex-col sm:flex-row gap-2">
-            <Button type="button" variant="outline" onClick={() => setAtribuirDialogOpen(false)} className={`w-full sm:w-auto ${isDark ? 'border-neutral-600 text-neutral-300 hover:bg-neutral-800' : 'border-gray-300'}`}>Cancelar</Button>
+            <Button type="button" variant="outline" onClick={() => setAtribuirDialogOpen(false)} className={`w-full sm:w-auto ${isDark ? 'border-neutral-600 text-neutral-300 hover:bg-neutral-800' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}>Cancelar</Button>
             <Button onClick={handleAtribuir} disabled={!atribuirData.obra_id} className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-black font-semibold">
               <ArrowRight className="h-4 w-4 mr-2" /> Atribuir
             </Button>
@@ -453,7 +490,7 @@ export default function Equipamentos() {
             <AlertDialogDescription className={isDark ? 'text-neutral-400' : 'text-gray-500'}>Tem a certeza que deseja eliminar "{selectedItem?.descricao}"?</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-            <AlertDialogCancel className={`w-full sm:w-auto ${isDark ? 'border-neutral-600 text-neutral-300 hover:bg-neutral-800' : 'border-gray-300'}`}>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel className={`w-full sm:w-auto ${isDark ? 'border-neutral-600 text-neutral-300 hover:bg-neutral-800' : 'border-gray-300 text-gray-700 hover:bg-gray-100'}`}>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white">Eliminar</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
