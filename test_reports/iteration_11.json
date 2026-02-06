@@ -1,0 +1,111 @@
+{
+  "summary": "Completed comprehensive testing of PDF upload and maintenance status features. All backend APIs and frontend components working correctly. PDF upload accepts only PDF files up to 10MB. PATCH /api/equipamentos/{id}/manutencao updates maintenance status without affecting other fields. Frontend shows correct status banners (green for armazém, orange for obra, red for manutenção) and maintenance buttons work as expected.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "passed_tests": [
+    "Backend: POST /api/upload/pdf accepts valid PDF files",
+    "Backend: POST /api/upload/pdf rejects non-PDF files (text, images)",
+    "Backend: POST /api/upload/pdf requires authentication",
+    "Backend: POST /api/upload/pdf returns url, filename, original_name",
+    "Backend: PATCH /api/equipamentos/{id}/manutencao marks equipamento as in maintenance",
+    "Backend: PATCH /api/equipamentos/{id}/manutencao marks equipamento as available",
+    "Backend: PATCH /api/equipamentos/{id}/manutencao preserves other fields",
+    "Backend: PATCH /api/equipamentos/{id}/manutencao returns 404 for non-existent equipamento",
+    "Backend: PATCH /api/equipamentos/{id}/manutencao requires authentication",
+    "Backend: GET /api/equipamentos list includes em_manutencao field",
+    "Backend: GET /api/equipamentos/{id} detail includes maintenance fields",
+    "Frontend Equipamentos.jsx: Table shows 'Em armazém' indicator (green)",
+    "Frontend Equipamentos.jsx: Table shows 'Em Manutenção' indicator (red)",
+    "Frontend Equipamentos.jsx: Table shows 'Avariado' badge for equipamentos em manutenção",
+    "Frontend Equipamentos.jsx: Form shows 'Documentação' section with PdfUpload components",
+    "Frontend Equipamentos.jsx: Form shows 'Carregar Manual (PDF)' button",
+    "Frontend Equipamentos.jsx: Form shows 'Carregar Certificado (PDF)' button",
+    "Frontend Equipamentos.jsx: Form shows 'Carregar Ficha (PDF)' button",
+    "Frontend Equipamentos.jsx: Form shows 'Estado de Manutenção' section",
+    "Frontend EquipamentoDetail.jsx: Shows green banner 'Disponível em Armazém' for available equipamentos",
+    "Frontend EquipamentoDetail.jsx: Shows red banner 'Em Manutenção / Oficina' for equipamentos in maintenance",
+    "Frontend EquipamentoDetail.jsx: Shows avaria description in red banner",
+    "Frontend EquipamentoDetail.jsx: Shows 'Marcar em Manutenção' button for available equipamentos",
+    "Frontend EquipamentoDetail.jsx: Shows 'Marcar Disponível' button for equipamentos in maintenance",
+    "Frontend EquipamentoDetail.jsx: Dialog opens with textarea for avaria description",
+    "Frontend EquipamentoDetail.jsx: Dialog has 'Cancelar' and 'Confirmar' buttons",
+    "Frontend EquipamentoDetail.jsx: Banner changes from green to red after marking as in maintenance",
+    "Frontend EquipamentoDetail.jsx: Banner changes from red to green after marking as available",
+    "Frontend EquipamentoDetail.jsx: Toast notifications show success messages"
+  ],
+  "test_report_links": [
+    "/app/backend/tests/test_pdf_upload_manutencao.py",
+    "/app/test_reports/pytest/pytest_pdf_manutencao.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [
+    "/app/backend/tests/test_pdf_upload_manutencao.py"
+  ],
+  "success_rate": {
+    "backend": "100% (12 tests passed)",
+    "frontend": "100%"
+  },
+  "test_credentials": {
+    "email": "test@test.com",
+    "password": "test123"
+  },
+  "seed_data_creation": "Used existing equipamentos AB-01 (in maintenance), AB-02, AB-03 (available). Created and cleaned up TEST_MANUT_001 for backend tests.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "PDF upload and maintenance status features fully tested. The app now supports: 1) PDF file upload via POST /api/upload/pdf (max 10MB), 2) PATCH /api/equipamentos/{id}/manutencao to update maintenance status without editing other fields, 3) Status banners in EquipamentoDetail (green=armazém, orange=obra, red=manutenção), 4) Maintenance buttons to toggle status, 5) Dialog for entering avaria description, 6) PdfUpload component in form for manual, certificado, and ficha de manutenção.",
+  "test_details": {
+    "backend_tests": {
+      "total_tests": 12,
+      "passed": 12,
+      "failed": 0,
+      "endpoints_tested": [
+        "POST /api/upload/pdf (PDF file upload)",
+        "PATCH /api/equipamentos/{id}/manutencao (maintenance status update)",
+        "GET /api/equipamentos (list with em_manutencao field)",
+        "GET /api/equipamentos/{id} (detail with maintenance fields)"
+      ]
+    },
+    "frontend_tests": {
+      "equipamentos_list": {
+        "em_armazem_indicator_green": true,
+        "em_manutencao_indicator_red": true,
+        "avariado_badge": true
+      },
+      "equipamentos_form": {
+        "documentacao_section": true,
+        "pdf_upload_manual": true,
+        "pdf_upload_certificado": true,
+        "pdf_upload_ficha": true,
+        "estado_manutencao_section": true
+      },
+      "equipamento_detail": {
+        "green_banner_disponivel": true,
+        "red_banner_manutencao": true,
+        "avaria_description_in_banner": true,
+        "marcar_manutencao_button": true,
+        "marcar_disponivel_button": true,
+        "manutencao_dialog": true,
+        "dialog_textarea": true,
+        "dialog_buttons": true,
+        "banner_state_change": true,
+        "toast_notifications": true
+      }
+    },
+    "features_verified": {
+      "pdf_upload": "POST /api/upload/pdf accepts PDF files up to 10MB, rejects non-PDF files",
+      "maintenance_patch": "PATCH /api/equipamentos/{id}/manutencao updates em_manutencao and descricao_avaria without changing other fields",
+      "status_banners": "Green (armazém), Orange (obra), Red (manutenção) banners in EquipamentoDetail",
+      "maintenance_buttons": "'Marcar em Manutenção' for available, 'Marcar Disponível' for in maintenance",
+      "maintenance_dialog": "Dialog with textarea for avaria description and Cancelar/Confirmar buttons",
+      "pdf_upload_component": "PdfUpload.jsx component used in form for manual, certificado, ficha de manutenção"
+    }
+  }
+}
