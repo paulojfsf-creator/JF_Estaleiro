@@ -62,7 +62,12 @@ export default function Equipamentos() {
     numero_serie: "",
     estado_conservacao: "Bom",
     foto: "",
-    obra_id: ""
+    obra_id: "",
+    manual_url: "",
+    certificado_url: "",
+    ficha_manutencao_url: "",
+    em_manutencao: false,
+    descricao_avaria: ""
   });
   const [atribuirData, setAtribuirData] = useState({
     obra_id: "",
