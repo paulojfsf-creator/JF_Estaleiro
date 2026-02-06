@@ -449,6 +449,54 @@ export default function Equipamentos() {
               <div className="md:col-span-2">
                 <ImageUpload value={formData.foto} onChange={(url) => setFormData({...formData, foto: url})} label="Ou carregar foto" />
               </div>
+              
+              {/* Secção de Documentação */}
+              <div className="md:col-span-2 pt-4 border-t border-neutral-700">
+                <h4 className={`text-sm font-semibold mb-3 flex items-center gap-2 ${isDark ? 'text-neutral-300' : 'text-gray-700'}`}>
+                  <FileText className="h-4 w-4 text-orange-500" /> Documentação
+                </h4>
+              </div>
+              <div className="space-y-2">
+                <Label className={isDark ? 'text-neutral-300' : 'text-gray-700'}>Manual de Utilizador (URL)</Label>
+                <Input value={formData.manual_url} onChange={(e) => setFormData({...formData, manual_url: e.target.value})} placeholder="https://..." className={inputClass} />
+              </div>
+              <div className="space-y-2">
+                <Label className={isDark ? 'text-neutral-300' : 'text-gray-700'}>Certificado de Conformidade (URL)</Label>
+                <Input value={formData.certificado_url} onChange={(e) => setFormData({...formData, certificado_url: e.target.value})} placeholder="https://..." className={inputClass} />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label className={isDark ? 'text-neutral-300' : 'text-gray-700'}>Ficha de Manutenção (URL)</Label>
+                <Input value={formData.ficha_manutencao_url} onChange={(e) => setFormData({...formData, ficha_manutencao_url: e.target.value})} placeholder="https://..." className={inputClass} />
+              </div>
+              
+              {/* Secção de Manutenção/Avaria */}
+              <div className="md:col-span-2 pt-4 border-t border-neutral-700">
+                <h4 className={`text-sm font-semibold mb-3 flex items-center gap-2 ${isDark ? 'text-neutral-300' : 'text-gray-700'}`}>
+                  <AlertTriangle className="h-4 w-4 text-amber-500" /> Estado de Manutenção
+                </h4>
+              </div>
+              <div className="flex items-center gap-3">
+                <Switch 
+                  checked={formData.em_manutencao} 
+                  onCheckedChange={(v) => setFormData({...formData, em_manutencao: v})} 
+                />
+                <Label className={`${formData.em_manutencao ? 'text-amber-500' : isDark ? 'text-neutral-300' : 'text-gray-700'}`}>
+                  Em Manutenção / Avariado
+                </Label>
+              </div>
+              {formData.em_manutencao && (
+                <div className="space-y-2 md:col-span-2">
+                  <Label className={isDark ? 'text-neutral-300' : 'text-gray-700'}>Descrição da Avaria</Label>
+                  <Textarea 
+                    value={formData.descricao_avaria} 
+                    onChange={(e) => setFormData({...formData, descricao_avaria: e.target.value})} 
+                    placeholder="Descreva o problema, localização na oficina, previsão de reparação..." 
+                    rows={3}
+                    className={inputClass} 
+                  />
+                </div>
+              )}
+              
               <div className="flex items-center gap-3">
                 <Switch checked={formData.ativo} onCheckedChange={(v) => setFormData({...formData, ativo: v})} />
                 <Label className={isDark ? 'text-neutral-300' : 'text-gray-700'}>Ativo</Label>
