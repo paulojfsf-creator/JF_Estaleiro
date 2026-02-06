@@ -196,7 +196,9 @@ export default function Equipamentos() {
     setFormData({
       codigo: "", descricao: "", marca: "", modelo: "", data_aquisicao: "",
       ativo: true, categoria: "", numero_serie: "",
-      estado_conservacao: "Bom", foto: "", obra_id: ""
+      estado_conservacao: "Bom", foto: "", obra_id: "",
+      manual_url: "", certificado_url: "", ficha_manutencao_url: "",
+      em_manutencao: false, descricao_avaria: ""
     });
   };
 
