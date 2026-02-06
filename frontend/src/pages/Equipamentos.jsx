@@ -3,7 +3,7 @@ import { useAuth, useTheme, API } from "@/App";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Wrench, Search, Building2, ArrowRight } from "lucide-react";
+import { Plus, Pencil, Trash2, Wrench, Search, Building2, ArrowRight, FileText, AlertTriangle, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
