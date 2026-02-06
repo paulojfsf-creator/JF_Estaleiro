@@ -11,16 +11,28 @@ import {
   User, 
   Clock,
   ArrowRightLeft,
-  MapPin,
   Tag,
   Hash,
   FileText,
   AlertTriangle,
-  ExternalLink
+  ExternalLink,
+  CheckCircle,
+  XCircle,
+  Settings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 export default function EquipamentoDetail() {
   const { id } = useParams();
@@ -30,6 +42,11 @@ export default function EquipamentoDetail() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const isDark = theme === "dark";
+  
+  // Dialogs
+  const [manutencaoDialog, setManutencaoDialog] = useState(false);
+  const [descricaoAvaria, setDescricaoAvaria] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -41,6 +58,7 @@ export default function EquipamentoDetail() {
         headers: { Authorization: `Bearer ${token}` }
       });
       setData(response.data);
+      setDescricaoAvaria(response.data.equipamento?.descricao_avaria || "");
     } catch (error) {
       toast.error("Equipamento não encontrado");
       navigate("/equipamentos");
@@ -49,40 +67,103 @@ export default function EquipamentoDetail() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className={`flex items-center justify-center h-64 ${isDark ? 'text-neutral-400' : 'text-gray-500'}`}>
-        A carregar...
-      </div>
-    );
-  }
+  const handleToggleManutencao = async (novoEstado) => {
+    if (novoEstado) {
+      // Abrir dialog para inserir descrição da avaria
+      setManutencaoDialog(true);
+    } else {
+      // Remover de manutenção diretamente
+      await updateManutencao(false, "");
+    }
+  };
 
-  const { equipamento, obra_atual, historico } = data;
+  const handleConfirmManutencao = async () => {
+    await updateManutencao(true, descricaoAvaria);
+    setManutencaoDialog(false);
+  };
+
+  const updateManutencao = async (emManutencao, descricao) => {
+    setSaving(true);
+    try {
+      await axios.patch(`${API}/equipamentos/${id}/manutencao`, {
+        em_manutencao: emManutencao,
+        descricao_avaria: descricao
+      }, { headers: { Authorization: `Bearer ${token}` } });
+      
+      toast.success(emManutencao ? "Equipamento marcado como em manutenção" : "Equipamento disponível novamente");
+      fetchData();
+    } catch (error) {
+      toast.error("Erro ao atualizar estado");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "-";
     try {
       return new Date(dateStr).toLocaleDateString("pt-PT", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
+        day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit"
       });
-    } catch {
-      return dateStr;
-    }
+    } catch { return dateStr; }
   };
+
+  const getStatusInfo = () => {
+    if (!data?.equipamento) return { color: "gray", label: "Desconhecido", icon: null };
+    
+    const eq = data.equipamento;
+    
+    if (eq.em_manutencao) {
+      return { 
+        color: "red", 
+        bgClass: isDark ? "bg-red-500/10 border-red-500/30" : "bg-red-50 border-red-200",
+        textClass: "text-red-500",
+        label: "Em Manutenção / Oficina", 
+        icon: AlertTriangle 
+      };
+    }
+    
+    if (eq.obra_id) {
+      return { 
+        color: "orange", 
+        bgClass: isDark ? "bg-orange-500/10 border-orange-500/30" : "bg-orange-50 border-orange-200",
+        textClass: "text-orange-500",
+        label: "Em Obra", 
+        icon: Building2 
+      };
+    }
+    
+    return { 
+      color: "green", 
+      bgClass: isDark ? "bg-emerald-500/10 border-emerald-500/30" : "bg-emerald-50 border-emerald-200",
+      textClass: "text-emerald-500",
+      label: "Disponível em Armazém", 
+      icon: CheckCircle 
+    };
+  };
+
+  const getDocumentUrl = (url) => {
+    if (!url) return "";
+    if (url.startsWith("http")) return url;
+    if (url.startsWith("/api")) return `${process.env.REACT_APP_BACKEND_URL}${url}`;
+    return url;
+  };
+
+  if (loading) return <div className="flex items-center justify-center h-64"><div className={isDark ? 'text-neutral-400' : 'text-gray-500'}>A carregar...</div></div>;
+  if (!data) return null;
+
+  const { equipamento, obra_atual, historico } = data;
+  const status = getStatusInfo();
+  const StatusIcon = status.icon;
 
   return (
     <div data-testid="equipamento-detail-page" className="animate-fade-in">
-      {/* Header */}
       <div className="flex items-center gap-4 mb-6">
         <Button 
           variant="ghost" 
           size="sm" 
           onClick={() => navigate("/equipamentos")}
-          className={isDark ? 'text-neutral-400 hover:text-white' : 'text-gray-500 hover:text-gray-900'}
+          className={isDark ? 'text-neutral-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}
           data-testid="back-btn"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -90,26 +171,72 @@ export default function EquipamentoDetail() {
         </Button>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Main Info Card */}
-        <div className="flex-1">
+      {/* Status Banner */}
+      <Card className={`mb-6 border-2 ${status.bgClass}`}>
+        <CardContent className="py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {StatusIcon && <StatusIcon className={`h-6 w-6 ${status.textClass}`} />}
+              <div>
+                <p className={`font-semibold text-lg ${status.textClass}`}>{status.label}</p>
+                {equipamento.em_manutencao && equipamento.descricao_avaria && (
+                  <p className={`text-sm mt-1 ${isDark ? 'text-neutral-400' : 'text-gray-600'}`}>{equipamento.descricao_avaria}</p>
+                )}
+                {obra_atual && (
+                  <p className={`text-sm ${isDark ? 'text-neutral-400' : 'text-gray-600'}`}>
+                    Obra: <Link to={`/obras/${obra_atual.id}`} className="text-orange-500 hover:underline">{obra_atual.nome}</Link>
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="flex gap-2">
+              {!equipamento.em_manutencao ? (
+                <Button 
+                  onClick={() => handleToggleManutencao(true)}
+                  variant="outline"
+                  className="border-red-500/50 text-red-500 hover:bg-red-500/10"
+                  data-testid="marcar-manutencao-btn"
+                >
+                  <AlertTriangle className="h-4 w-4 mr-2" />
+                  Marcar em Manutenção
+                </Button>
+              ) : (
+                <Button 
+                  onClick={() => handleToggleManutencao(false)}
+                  variant="outline"
+                  className="border-emerald-500/50 text-emerald-500 hover:bg-emerald-500/10"
+                  data-testid="disponivel-btn"
+                >
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Marcar Disponível
+                </Button>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Info */}
+        <div className="lg:col-span-2 space-y-6">
           <Card className={isDark ? 'bg-neutral-800 border-neutral-700' : 'bg-white border-gray-200'}>
-            <CardHeader className={`border-b ${isDark ? 'border-neutral-700' : 'border-gray-200'}`}>
-              <div className="flex flex-col sm:flex-row items-start gap-4">
+            <CardHeader>
+              <div className="flex items-start gap-4">
                 {equipamento.foto ? (
                   <img 
                     src={equipamento.foto.startsWith('/api') ? `${process.env.REACT_APP_BACKEND_URL}${equipamento.foto}` : equipamento.foto}
                     alt={equipamento.descricao}
-                    className={`h-20 w-20 object-cover rounded-lg ${isDark ? 'bg-neutral-700' : 'bg-gray-100'}`}
+                    className="w-24 h-24 object-cover rounded-xl border-2 border-orange-500/30"
                   />
                 ) : (
-                  <div className={`h-20 w-20 rounded-lg flex items-center justify-center ${isDark ? 'bg-neutral-700' : 'bg-gray-100'}`}>
-                    <Wrench className={`h-8 w-8 ${isDark ? 'text-neutral-500' : 'text-gray-400'}`} />
+                  <div className={`w-24 h-24 rounded-xl flex items-center justify-center ${isDark ? 'bg-neutral-700' : 'bg-gray-100'}`}>
+                    <Wrench className="h-10 w-10 text-orange-500" />
                   </div>
                 )}
                 <div className="flex-1">
-                  <CardTitle className={`text-2xl ${isDark ? 'text-white' : 'text-gray-900'}`}>{equipamento.descricao}</CardTitle>
-                  <p className={`font-mono text-sm mt-1 ${isDark ? 'text-neutral-400' : 'text-gray-500'}`}>{equipamento.codigo}</p>
+                  <span className="text-orange-500 font-mono text-sm">{equipamento.codigo}</span>
+                  <CardTitle className={`text-xl mt-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>{equipamento.descricao}</CardTitle>
+                  <p className={`text-sm ${isDark ? 'text-neutral-400' : 'text-gray-500'}`}>{equipamento.marca} {equipamento.modelo}</p>
                   <div className="flex flex-wrap items-center gap-2 mt-2">
                     <Badge variant={equipamento.ativo ? "default" : "secondary"} className={equipamento.ativo ? "bg-emerald-500/20 text-emerald-500" : `${isDark ? 'bg-neutral-600 text-neutral-400' : 'bg-gray-200 text-gray-500'}`}>
                       {equipamento.ativo ? "Ativo" : "Inativo"}
@@ -117,154 +244,114 @@ export default function EquipamentoDetail() {
                     <Badge variant="outline" className={`${isDark ? 'border-neutral-600' : 'border-gray-300'} ${equipamento.estado_conservacao === "Bom" ? "text-emerald-500" : equipamento.estado_conservacao === "Razoável" ? "text-amber-500" : "text-red-500"}`}>
                       {equipamento.estado_conservacao}
                     </Badge>
-                    {equipamento.em_manutencao && (
-                      <Badge className="bg-amber-500/20 text-amber-500 flex items-center gap-1">
-                        <AlertTriangle className="h-3 w-3" /> Em Manutenção
-                      </Badge>
-                    )}
                   </div>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="pt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div className={`flex items-center gap-3 ${isDark ? 'text-neutral-300' : 'text-gray-700'}`}>
-                    <Tag className="h-4 w-4 text-orange-500" />
-                    <span className={isDark ? 'text-neutral-500' : 'text-gray-500'}>Marca/Modelo:</span>
-                    <span>{equipamento.marca || "-"} {equipamento.modelo || ""}</span>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                {equipamento.categoria && (
+                  <div className="flex items-center gap-2">
+                    <Tag className={`h-4 w-4 ${isDark ? 'text-neutral-500' : 'text-gray-400'}`} />
+                    <div>
+                      <p className={isDark ? 'text-neutral-500' : 'text-gray-500'}>Categoria</p>
+                      <p className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>{equipamento.categoria}</p>
+                    </div>
                   </div>
-                  <div className={`flex items-center gap-3 ${isDark ? 'text-neutral-300' : 'text-gray-700'}`}>
-                    <Hash className="h-4 w-4 text-orange-500" />
-                    <span className={isDark ? 'text-neutral-500' : 'text-gray-500'}>Nº Série:</span>
-                    <span className="font-mono">{equipamento.numero_serie || "-"}</span>
+                )}
+                {equipamento.numero_serie && (
+                  <div className="flex items-center gap-2">
+                    <Hash className={`h-4 w-4 ${isDark ? 'text-neutral-500' : 'text-gray-400'}`} />
+                    <div>
+                      <p className={isDark ? 'text-neutral-500' : 'text-gray-500'}>Nº Série</p>
+                      <p className={`font-medium font-mono ${isDark ? 'text-white' : 'text-gray-900'}`}>{equipamento.numero_serie}</p>
+                    </div>
                   </div>
-                  <div className={`flex items-center gap-3 ${isDark ? 'text-neutral-300' : 'text-gray-700'}`}>
-                    <Wrench className="h-4 w-4 text-orange-500" />
-                    <span className={isDark ? 'text-neutral-500' : 'text-gray-500'}>Categoria:</span>
-                    <span>{equipamento.categoria || "-"}</span>
+                )}
+                {equipamento.data_aquisicao && (
+                  <div className="flex items-center gap-2">
+                    <Calendar className={`h-4 w-4 ${isDark ? 'text-neutral-500' : 'text-gray-400'}`} />
+                    <div>
+                      <p className={isDark ? 'text-neutral-500' : 'text-gray-500'}>Data Aquisição</p>
+                      <p className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>{formatDate(equipamento.data_aquisicao).split(",")[0]}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="space-y-4">
-                  <div className={`flex items-center gap-3 ${isDark ? 'text-neutral-300' : 'text-gray-700'}`}>
-                    <Calendar className="h-4 w-4 text-orange-500" />
-                    <span className={isDark ? 'text-neutral-500' : 'text-gray-500'}>Data Aquisição:</span>
-                    <span>{equipamento.data_aquisicao ? formatDate(equipamento.data_aquisicao).split(",")[0] : "-"}</span>
-                  </div>
-                  <div className={`flex items-center gap-3 ${isDark ? 'text-neutral-300' : 'text-gray-700'}`}>
-                    <Clock className="h-4 w-4 text-orange-500" />
-                    <span className={isDark ? 'text-neutral-500' : 'text-gray-500'}>Criado em:</span>
-                    <span>{formatDate(equipamento.created_at)}</span>
-                  </div>
-                </div>
+                )}
               </div>
             </CardContent>
           </Card>
 
-          {/* Localização Atual */}
-          <Card className={`mt-6 ${isDark ? 'bg-neutral-800 border-neutral-700' : 'bg-white border-gray-200'}`}>
+          {/* Documentação */}
+          <Card className={isDark ? 'bg-neutral-800 border-neutral-700' : 'bg-white border-gray-200'}>
             <CardHeader>
               <CardTitle className={`text-lg flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                <MapPin className="h-5 w-5 text-orange-500" />
-                Localização Atual
+                <FileText className="h-5 w-5 text-orange-500" />
+                Documentação
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {obra_atual ? (
-                <Link 
-                  to={`/obras/${obra_atual.id}`}
-                  className="flex items-center gap-4 p-4 bg-orange-500/10 border border-orange-500/30 rounded-lg hover:bg-orange-500/20 transition-colors"
-                >
-                  <Building2 className="h-8 w-8 text-orange-500" />
-                  <div>
-                    <p className={`font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>{obra_atual.nome}</p>
-                    <p className={`text-sm ${isDark ? 'text-neutral-400' : 'text-gray-500'}`}>{obra_atual.codigo} • {obra_atual.endereco || "Sem endereço"}</p>
+              <div className="space-y-3">
+                {equipamento.manual_url ? (
+                  <a 
+                    href={getDocumentUrl(equipamento.manual_url)} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${isDark ? 'bg-neutral-700/50 border-neutral-600 hover:bg-neutral-700' : 'bg-gray-50 border-gray-200 hover:bg-gray-100'}`}
+                  >
+                    <FileText className="h-5 w-5 text-blue-500" />
+                    <span className={`flex-1 ${isDark ? 'text-neutral-200' : 'text-gray-700'}`}>Manual de Utilizador</span>
+                    <ExternalLink className={`h-4 w-4 ${isDark ? 'text-neutral-500' : 'text-gray-400'}`} />
+                  </a>
+                ) : (
+                  <div className={`flex items-center gap-3 p-3 rounded-lg border ${isDark ? 'bg-neutral-700/30 border-neutral-700 text-neutral-500' : 'bg-gray-50 border-gray-200 text-gray-400'}`}>
+                    <FileText className="h-5 w-5" />
+                    <span className="flex-1">Manual de Utilizador</span>
+                    <span className="text-xs">Não disponível</span>
                   </div>
-                </Link>
-              ) : (
-                <div className={`flex items-center gap-4 p-4 rounded-lg border ${isDark ? 'bg-neutral-700/50 border-neutral-600' : 'bg-gray-50 border-gray-200'}`}>
-                  <Building2 className={`h-8 w-8 ${isDark ? 'text-neutral-500' : 'text-gray-400'}`} />
-                  <div>
-                    <p className={`font-semibold ${isDark ? 'text-neutral-300' : 'text-gray-700'}`}>Em Armazém</p>
-                    <p className={`text-sm ${isDark ? 'text-neutral-500' : 'text-gray-500'}`}>Este equipamento não está atribuído a nenhuma obra</p>
+                )}
+                {equipamento.certificado_url ? (
+                  <a 
+                    href={getDocumentUrl(equipamento.certificado_url)} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${isDark ? 'bg-neutral-700/50 border-neutral-600 hover:bg-neutral-700' : 'bg-gray-50 border-gray-200 hover:bg-gray-100'}`}
+                  >
+                    <FileText className="h-5 w-5 text-emerald-500" />
+                    <span className={`flex-1 ${isDark ? 'text-neutral-200' : 'text-gray-700'}`}>Certificado de Conformidade</span>
+                    <ExternalLink className={`h-4 w-4 ${isDark ? 'text-neutral-500' : 'text-gray-400'}`} />
+                  </a>
+                ) : (
+                  <div className={`flex items-center gap-3 p-3 rounded-lg border ${isDark ? 'bg-neutral-700/30 border-neutral-700 text-neutral-500' : 'bg-gray-50 border-gray-200 text-gray-400'}`}>
+                    <FileText className="h-5 w-5" />
+                    <span className="flex-1">Certificado de Conformidade</span>
+                    <span className="text-xs">Não disponível</span>
                   </div>
-                </div>
-              )}
+                )}
+                {equipamento.ficha_manutencao_url ? (
+                  <a 
+                    href={getDocumentUrl(equipamento.ficha_manutencao_url)} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${isDark ? 'bg-neutral-700/50 border-neutral-600 hover:bg-neutral-700' : 'bg-gray-50 border-gray-200 hover:bg-gray-100'}`}
+                  >
+                    <FileText className="h-5 w-5 text-amber-500" />
+                    <span className={`flex-1 ${isDark ? 'text-neutral-200' : 'text-gray-700'}`}>Ficha de Manutenção</span>
+                    <ExternalLink className={`h-4 w-4 ${isDark ? 'text-neutral-500' : 'text-gray-400'}`} />
+                  </a>
+                ) : (
+                  <div className={`flex items-center gap-3 p-3 rounded-lg border ${isDark ? 'bg-neutral-700/30 border-neutral-700 text-neutral-500' : 'bg-gray-50 border-gray-200 text-gray-400'}`}>
+                    <FileText className="h-5 w-5" />
+                    <span className="flex-1">Ficha de Manutenção</span>
+                    <span className="text-xs">Não disponível</span>
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
-
-          {/* Avaria / Em Manutenção */}
-          {equipamento.em_manutencao && (
-            <Card className={`mt-6 border-amber-500/30 ${isDark ? 'bg-amber-500/5' : 'bg-amber-50'}`}>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2 text-amber-500">
-                  <AlertTriangle className="h-5 w-5" />
-                  Em Manutenção / Avariado
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className={isDark ? 'text-neutral-300' : 'text-gray-700'}>
-                  {equipamento.descricao_avaria || 'Sem descrição da avaria'}
-                </p>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Documentação */}
-          {(equipamento.manual_url || equipamento.certificado_url || equipamento.ficha_manutencao_url) && (
-            <Card className={`mt-6 ${isDark ? 'bg-neutral-800 border-neutral-700' : 'bg-white border-gray-200'}`}>
-              <CardHeader>
-                <CardTitle className={`text-lg flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                  <FileText className="h-5 w-5 text-orange-500" />
-                  Documentação
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {equipamento.manual_url && (
-                    <a 
-                      href={equipamento.manual_url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${isDark ? 'bg-neutral-700/50 border-neutral-600 hover:bg-neutral-700' : 'bg-gray-50 border-gray-200 hover:bg-gray-100'}`}
-                    >
-                      <FileText className="h-5 w-5 text-blue-500" />
-                      <span className={`flex-1 ${isDark ? 'text-neutral-200' : 'text-gray-700'}`}>Manual de Utilizador</span>
-                      <ExternalLink className={`h-4 w-4 ${isDark ? 'text-neutral-500' : 'text-gray-400'}`} />
-                    </a>
-                  )}
-                  {equipamento.certificado_url && (
-                    <a 
-                      href={equipamento.certificado_url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${isDark ? 'bg-neutral-700/50 border-neutral-600 hover:bg-neutral-700' : 'bg-gray-50 border-gray-200 hover:bg-gray-100'}`}
-                    >
-                      <FileText className="h-5 w-5 text-emerald-500" />
-                      <span className={`flex-1 ${isDark ? 'text-neutral-200' : 'text-gray-700'}`}>Certificado de Conformidade</span>
-                      <ExternalLink className={`h-4 w-4 ${isDark ? 'text-neutral-500' : 'text-gray-400'}`} />
-                    </a>
-                  )}
-                  {equipamento.ficha_manutencao_url && (
-                    <a 
-                      href={equipamento.ficha_manutencao_url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${isDark ? 'bg-neutral-700/50 border-neutral-600 hover:bg-neutral-700' : 'bg-gray-50 border-gray-200 hover:bg-gray-100'}`}
-                    >
-                      <FileText className="h-5 w-5 text-amber-500" />
-                      <span className={`flex-1 ${isDark ? 'text-neutral-200' : 'text-gray-700'}`}>Ficha de Manutenção</span>
-                      <ExternalLink className={`h-4 w-4 ${isDark ? 'text-neutral-500' : 'text-gray-400'}`} />
-                    </a>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          )}
         </div>
 
-        {/* Histórico de Movimentos */}
-        <div className="lg:w-96">
+        {/* Sidebar - Histórico */}
+        <div className="lg:col-span-1">
           <Card className={isDark ? 'bg-neutral-800 border-neutral-700' : 'bg-white border-gray-200'}>
             <CardHeader>
               <CardTitle className={`text-lg flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
@@ -273,8 +360,10 @@ export default function EquipamentoDetail() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {historico && historico.length > 0 ? (
-                <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+              {historico?.length === 0 ? (
+                <p className={isDark ? 'text-neutral-500' : 'text-gray-400'}>Sem movimentos registados</p>
+              ) : (
+                <div className="space-y-3 max-h-[500px] overflow-y-auto">
                   {historico.map((mov, idx) => (
                     <div 
                       key={mov.id || idx}
@@ -318,21 +407,51 @@ export default function EquipamentoDetail() {
                         </>
                       )}
                       {mov.observacoes && (
-                        <p className={`text-xs mt-2 italic ${isDark ? 'text-neutral-400' : 'text-gray-500'}`}>&ldquo;{mov.observacoes}&rdquo;</p>
+                        <p className={`text-xs mt-2 italic ${isDark ? 'text-neutral-400' : 'text-gray-500'}`}>"{mov.observacoes}"</p>
                       )}
                     </div>
                   ))}
-                </div>
-              ) : (
-                <div className={`text-center py-8 ${isDark ? 'text-neutral-500' : 'text-gray-400'}`}>
-                  <ArrowRightLeft className="h-12 w-12 mx-auto mb-3 opacity-30" />
-                  <p>Sem movimentos registados</p>
                 </div>
               )}
             </CardContent>
           </Card>
         </div>
       </div>
+
+      {/* Dialog: Marcar em Manutenção */}
+      <Dialog open={manutencaoDialog} onOpenChange={setManutencaoDialog}>
+        <DialogContent className={`sm:max-w-lg ${isDark ? 'bg-neutral-900 border-neutral-700' : 'bg-white'}`}>
+          <DialogHeader>
+            <DialogTitle className={`flex items-center gap-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+              <AlertTriangle className="h-5 w-5 text-red-500" />
+              Marcar em Manutenção
+            </DialogTitle>
+            <DialogDescription className={isDark ? 'text-neutral-400' : 'text-gray-500'}>
+              Descreva o problema ou avaria do equipamento
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label className={isDark ? 'text-neutral-300' : 'text-gray-700'}>Descrição da Avaria *</Label>
+              <Textarea 
+                value={descricaoAvaria} 
+                onChange={(e) => setDescricaoAvaria(e.target.value)} 
+                placeholder="Descreva o problema, localização na oficina, previsão de reparação..." 
+                rows={4}
+                className={isDark ? 'bg-neutral-800 border-neutral-700 text-white' : 'bg-white border-gray-300 text-gray-900'}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setManutencaoDialog(false)} className={isDark ? 'border-neutral-600 text-neutral-300 hover:bg-neutral-800' : ''}>
+              Cancelar
+            </Button>
+            <Button onClick={handleConfirmManutencao} disabled={saving} className="bg-red-500 hover:bg-red-600 text-white">
+              {saving ? "A guardar..." : "Confirmar"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
