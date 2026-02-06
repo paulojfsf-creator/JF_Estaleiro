@@ -411,6 +411,23 @@ async def get_equipamento(equipamento_id: str, user=Depends(get_current_user)):
     
     return {"equipamento": item, "obra_atual": obra, "historico": movimentos}
 
+class ManutencaoUpdate(BaseModel):
+    em_manutencao: bool
+    descricao_avaria: str = ""
+
+@api_router.patch("/equipamentos/{equipamento_id}/manutencao")
+async def update_equipamento_manutencao(equipamento_id: str, data: ManutencaoUpdate, user=Depends(get_current_user)):
+    """Atualizar estado de manutenção de um equipamento (sem editar outros campos)"""
+    existing = await db.equipamentos.find_one({"id": equipamento_id}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Equipamento não encontrado")
+    
+    update_data = {"em_manutencao": data.em_manutencao, "descricao_avaria": data.descricao_avaria}
+    await db.equipamentos.update_one({"id": equipamento_id}, {"$set": update_data})
+    
+    updated = await db.equipamentos.find_one({"id": equipamento_id}, {"_id": 0})
+    return updated
+
 @api_router.post("/equipamentos")
 async def create_equipamento(data: EquipamentoCreate, user=Depends(get_current_user)):
     existing = await db.equipamentos.find_one({"codigo": data.codigo}, {"_id": 0})
