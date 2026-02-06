@@ -302,7 +302,7 @@ class TestObraDetailAPIs:
         obra = obras[0]
         
         # Create movimento stock with obra_id
-        response = self.session.post(f"{BASE_URL}/api/movimentos-stock", json={
+        response = self.session.post(f"{BASE_URL}/api/movimentos/stock", json={
             "material_id": material["id"],
             "tipo_movimento": "Saida",
             "quantidade": 5,
@@ -338,7 +338,7 @@ class TestObraDetailAPIs:
         obra = obras[0]
         
         # Create movimento stock entrada
-        response = self.session.post(f"{BASE_URL}/api/movimentos-stock", json={
+        response = self.session.post(f"{BASE_URL}/api/movimentos/stock", json={
             "material_id": material["id"],
             "tipo_movimento": "Entrada",
             "quantidade": 10,
