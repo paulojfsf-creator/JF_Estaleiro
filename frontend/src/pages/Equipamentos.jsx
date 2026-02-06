@@ -321,13 +321,21 @@ export default function Equipamentos() {
                       </span>
                     </td>
                     <td className="py-3 px-4">
-                      {item.obra_id ? (
+                      {item.em_manutencao ? (
+                        <span className="flex items-center gap-1 text-red-500 text-sm font-medium">
+                          <AlertTriangle className="h-3 w-3" />
+                          Em Manutenção
+                        </span>
+                      ) : item.obra_id ? (
                         <span className="flex items-center gap-1 text-orange-500 text-sm">
                           <Building2 className="h-3 w-3" />
                           {getObraName(item.obra_id)}
                         </span>
                       ) : (
-                        <span className={`text-sm ${isDark ? 'text-neutral-500' : 'text-gray-400'}`}>Em armazém</span>
+                        <span className="flex items-center gap-1 text-emerald-500 text-sm">
+                          <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
+                          Em armazém
+                        </span>
                       )}
                     </td>
                     <td className="py-3 px-4 text-right" onClick={(e) => e.stopPropagation()}>
