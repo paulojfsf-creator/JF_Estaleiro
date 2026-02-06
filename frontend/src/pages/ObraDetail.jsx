@@ -140,7 +140,7 @@ export default function ObraDetail() {
       return;
     }
     try {
-      await axios.post(`${API}/movimentos-stock`, {
+      await axios.post(`${API}/movimentos/stock`, {
         material_id: selectedMaterial,
         tipo_movimento: tipoMovStock,
         quantidade: parseFloat(quantidade),
