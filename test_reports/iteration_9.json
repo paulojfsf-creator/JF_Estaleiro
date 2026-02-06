@@ -1,0 +1,103 @@
+{
+  "summary": "Completed comprehensive testing of ObraDetail page functionality. All features working correctly. Fixed one bug: frontend was calling wrong endpoint for movimentos-stock.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "bugs_fixed": [
+    {
+      "file": "/app/frontend/src/pages/ObraDetail.jsx",
+      "issue": "Frontend was calling /api/movimentos-stock (with hyphen) but backend endpoint is /api/movimentos/stock (with slash)",
+      "fix": "Changed line 143 from `${API}/movimentos-stock` to `${API}/movimentos/stock`"
+    }
+  ],
+  "passed_tests": [
+    "Obras page: Table rows are clickable and navigate to /obras/{id}",
+    "ObraDetail page: Shows obra info (nome, código, estado, cliente, endereço)",
+    "ObraDetail page: 'Atribuir Equipamento' button opens dialog with dropdown of available equipamentos",
+    "ObraDetail page: 'Atribuir Viatura' button opens dialog with dropdown of available viaturas",
+    "ObraDetail page: 'Movimento de Material' button opens dialog for stock entry/exit",
+    "ObraDetail page: Equipamentos tab shows assigned equipment with 'Devolver' button",
+    "ObraDetail page: Viaturas tab shows assigned vehicles with 'Devolver' button",
+    "API POST /api/movimentos/atribuir - works correctly for equipamento",
+    "API POST /api/movimentos/atribuir - works correctly for viatura",
+    "API POST /api/movimentos/devolver - works correctly for equipamento",
+    "API POST /api/movimentos/devolver - works correctly for viatura",
+    "API POST /api/movimentos/stock - works correctly with obra_id (Saida)",
+    "API POST /api/movimentos/stock - works correctly with obra_id (Entrada)",
+    "Full UI flow: Atribuir Equipamento -> Devolver Equipamento",
+    "Full UI flow: Movimento de Material (Saída)"
+  ],
+  "test_report_links": [
+    "/app/backend/tests/test_obra_detail.py",
+    "/app/test_reports/pytest/pytest_obra_detail.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "ESLint warning in ObraDetail.jsx line 67: useEffect has missing dependency 'fetchAllData' - minor issue, can be fixed by adding eslint-disable comment or including dependency"
+  ],
+  "updated_files": [
+    "/app/frontend/src/pages/ObraDetail.jsx",
+    "/app/backend/tests/test_obra_detail.py"
+  ],
+  "success_rate": {
+    "backend": "100% (12 passed, 1 skipped)",
+    "frontend": "100%"
+  },
+  "test_credentials": {
+    "email": "test@test.com",
+    "password": "test123"
+  },
+  "seed_data_creation": "Used existing test data: 1 obra (Obra Teste - OB0001), 198 equipamentos, 22 viaturas, 1 material",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "ObraDetail page fully tested. All CRUD operations for atribuir/devolver equipamentos and viaturas work correctly. Movimento de Material with obra_id also works. The page has 3 action buttons in header and 2 tabs (Equipamentos/Viaturas) showing assigned resources with Devolver buttons.",
+  "test_details": {
+    "backend_tests": {
+      "total_tests": 13,
+      "passed": 12,
+      "skipped": 1,
+      "failed": 0,
+      "endpoints_tested": [
+        "GET /api/obras",
+        "GET /api/obras/{id}",
+        "POST /api/movimentos/atribuir",
+        "POST /api/movimentos/devolver",
+        "POST /api/movimentos/stock",
+        "GET /api/equipamentos",
+        "GET /api/viaturas"
+      ]
+    },
+    "frontend_tests": {
+      "obras_page": {
+        "table_clickable_rows": true,
+        "navigation_to_detail": true
+      },
+      "obra_detail_page": {
+        "obra_info_displayed": true,
+        "atribuir_equipamento_button": true,
+        "atribuir_viatura_button": true,
+        "movimento_material_button": true,
+        "voltar_button": true,
+        "equipamentos_tab": true,
+        "viaturas_tab": true,
+        "devolver_button_visible": true
+      },
+      "dialogs": {
+        "atribuir_equipamento_dialog": true,
+        "atribuir_viatura_dialog": true,
+        "movimento_material_dialog": true,
+        "devolver_dialog": true
+      },
+      "full_flows_tested": [
+        "Atribuir Equipamento -> Devolver Equipamento",
+        "Movimento de Material (Saída)"
+      ]
+    }
+  }
+}
