@@ -318,7 +318,7 @@ export default function EquipamentoDetail() {
                         </>
                       )}
                       {mov.observacoes && (
-                        <p className={`text-xs mt-2 italic ${isDark ? 'text-neutral-400' : 'text-gray-500'}`}>"{mov.observacoes}"</p>
+                        <p className={`text-xs mt-2 italic ${isDark ? 'text-neutral-400' : 'text-gray-500'}`}>&ldquo;{mov.observacoes}&rdquo;</p>
                       )}
                     </div>
                   ))}
