@@ -14,8 +14,13 @@ Sistema de gestão de armazém para construção civil, permitindo o controlo de
 ### 2.2 Gestão de Equipamentos
 - ✅ CRUD completo (criar, ler, atualizar, eliminar)
 - ✅ Campos: código, descrição, marca, modelo, categoria, nº série, estado de conservação, foto
-- ✅ Campos de documentação: manual de utilizador (URL), certificado de conformidade (URL), ficha de manutenção (URL)
+- ✅ Campos de documentação com **upload de PDF**: manual de utilizador, certificado de conformidade, ficha de manutenção
 - ✅ Estado de manutenção: switch "Em Manutenção / Avariado" com descrição da avaria
+- ✅ **Marcar manutenção na ficha** sem entrar em edição (botão direto na página de detalhe)
+- ✅ **Indicadores de estado com cores**:
+  - 🟢 Verde: Disponível em Armazém
+  - 🟠 Laranja: Em Obra
+  - 🔴 Vermelho: Em Manutenção / Oficina
 - ✅ Atribuição direta a obras (sem entidade "Locais")
 - ✅ Ficha de detalhe com histórico completo de movimentos
 - ✅ Botão "Atribuir a Obra" diretamente na listagem
