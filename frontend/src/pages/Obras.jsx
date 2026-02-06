@@ -163,7 +163,12 @@ export default function Obras() {
             </thead>
             <tbody>
               {filtered.map((item) => (
-                <tr key={item.id} className="border-b border-neutral-700/50 hover:bg-neutral-700/30" data-testid={`obra-row-${item.id}`}>
+                <tr 
+                  key={item.id} 
+                  className="border-b border-neutral-700/50 hover:bg-neutral-700/30 cursor-pointer transition-colors" 
+                  onClick={() => navigate(`/obras/${item.id}`)}
+                  data-testid={`obra-row-${item.id}`}
+                >
                   <td className="py-3 px-4 font-mono text-orange-400">{item.codigo}</td>
                   <td className="py-3 px-4 text-white">{item.nome}</td>
                   <td className="py-3 px-4 text-neutral-400">{item.endereco || "-"}</td>
@@ -173,7 +178,7 @@ export default function Obras() {
                       {estadoLabels[item.estado] || item.estado}
                     </span>
                   </td>
-                  <td className="py-3 px-4 text-right">
+                  <td className="py-3 px-4 text-right" onClick={(e) => e.stopPropagation()}>
                     <Button variant="ghost" size="sm" onClick={() => navigate(`/obras/${item.id}`)} className="text-neutral-400 hover:text-white" data-testid={`view-${item.id}`}><Eye className="h-4 w-4" /></Button>
                     <Button variant="ghost" size="sm" onClick={() => openEditDialog(item)} className="text-neutral-400 hover:text-white"><Pencil className="h-4 w-4" /></Button>
                     <Button variant="ghost" size="sm" onClick={() => { setSelectedItem(item); setDeleteDialogOpen(true); }} className="text-red-400 hover:text-red-300"><Trash2 className="h-4 w-4" /></Button>
