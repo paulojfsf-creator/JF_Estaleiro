@@ -2,73 +2,59 @@
 O utilizador solicitou uma aplicação de gestão de armazém para construção civil. A aplicação evoluiu para incluir:
 1.  Gestão de equipamentos, viaturas, materiais, e obras.
 2.  Autenticação de utilizadores e atribuição de recursos a obras.
-3.  Upload de fotos para ativos e notificações por email (Resend) para alertas de manutenção.
-4.  Uma grande refatoração que introduziu uma nova identidade visual (preto, cinza, laranja), simplificou o modelo de dados (removendo Locais), e adicionou fichas de histórico detalhado para cada ativo.
-5.  Funcionalidades de importação/exportação de dados via Excel.
-6.  Um tema claro/escuro e design responsivo para telemóveis.
-7.  Melhorias de UX, como linhas de tabela clicáveis e botões de atribuir a obra diretamente nas listas.
-8.  Os pedidos mais recentes incluem: correções de UI, relatórios avançados e transformação da aplicação numa PWA.
+3.  Upload de fotos e PDFs para ativos.
+4.  Notificações por email (Resend) para alertas.
+5.  Uma grande refatoração que introduziu uma nova identidade visual (preto, cinza, laranja), simplificou o modelo de dados e adicionou fichas de histórico detalhado para cada ativo.
+6.  Funcionalidades de importação/exportação de dados via Excel.
+7.  Um tema claro/escuro e design responsivo para telemóveis.
+8.  Relatórios avançados e transformação da aplicação numa PWA.
+9.  Melhorias de UX, como indicadores de estado com cores (verde/disponível, laranja/em obra, vermelho/em manutenção) e ações rápidas nas páginas de detalhe.
 
 **User's preferred language**: Portuguese
 
 **what currently exists?**
-Uma aplicação full-stack (FastAPI, React, MongoDB) funcional para gestão de armazém. A aplicação possui autenticação JWT, CRUD para as entidades principais (Equipamentos, Viaturas, Obras, Materiais), upload de fotos e notificações por email. A UI foi recentemente refatorada com uma nova identidade visual, um tema claro/escuro, e um design responsivo para mobile. O modelo de dados foi simplificado, associando ativos diretamente às obras e registando o seu histórico de movimentos. As funcionalidades principais estão implementadas e foram testadas manualmente.
+Uma aplicação full-stack (FastAPI, React, MongoDB) funcional para gestão de armazém. A aplicação possui autenticação JWT, CRUD para as entidades principais (Equipamentos, Viaturas, Obras, Materiais), upload de fotos e PDFs, e notificações por email. A UI/UX foi significativamente melhorada com uma identidade visual coesa, tema claro/escuro, design responsivo, relatórios avançados, e funcionalidades PWA. Os módulos de Equipamentos e Obras foram enriquecidos com funcionalidades detalhadas de gestão, como atribuição direta, controlo de manutenção e upload de documentos. A implementação de funcionalidades semelhantes para o módulo de Viaturas está em andamento.
 
 **Last working item**:
-- **Last item agent was working**: O agente estava a implementar o último conjunto de pedidos do utilizador. Começou por corrigir um problema de visibilidade do texto nos campos de formulário no modo claro, adicionando variáveis CSS em . De seguida, atualizou a página  para mostrar a foto do ativo como a primeira coluna na tabela.
+- **Last item agent was working**: O agente estava a implementar um conjunto de melhorias para a secção de **Viaturas**, espelhando as funcionalidades adicionadas recentemente aos Equipamentos. As melhorias incluem: 1) Adicionar campos de documentação com upload de PDF (DUA, seguro, IPO). 2) Adicionar estado de manutenção/oficina com descrição da avaria. 3) Adicionar datas de expiração para alertas (seguro, IPO). O agente atualizou o modelo e os endpoints no backend () e reescreveu a página principal de listagem e formulário ().
 - **Status**: IN PROGRESS
 - **Agent Testing Done**: N
 - **Which testing method agent to use?**: both
 - **User Testing Done**: N
 
 **All Pending/In progress Issue list**:
-- **Issue 1**: Concluir as melhorias de UI e dados solicitadas. (PRIORIDADE: P0)
-
-  **Issues Detail**:
-  - **Issue 1**:
-    - **Description**: O utilizador solicitou várias melhorias:
-        1.  Corrigir a cor do texto nos campos de preenchimento (, ) no modo claro, que está quase invisível.
-        2.  Mostrar o nome da obra no histórico de movimentos de um ativo.
-        3.  Mostrar a foto do ativo como primeira coluna nas listas de equipamentos e viaturas.
-    - **Attempted fixes**: O agente já modificou  para corrigir as cores e atualizou  para reordenar as colunas.
-    - **Next debug checklist**:
-        1.  **Frontend**: Atualizar  para mostrar a foto como primeira coluna, semelhante ao que foi feito em .
-        2.  **Frontend**: Verificar e aplicar as classes CSS corretas para os inputs em todas as outras páginas com formulários (, , , etc.) para garantir que a correção do modo claro funcione em toda a parte.
-        3.  **Backend**: Modificar os endpoints que retornam o histórico de um ativo (ex: ) em . A lógica precisa de fazer um lookup na coleção  para obter o nome da obra () a partir do  guardado em cada movimento e incluí-lo na resposta.
-        4.  **Frontend**: Atualizar os componentes de detalhe (, ) para exibir o nome da obra no histórico de movimentos.
-        5.  Testar visualmente o modo claro em todos os formulários e verificar se o histórico de ativos agora mostra o nome da obra.
-    - **Status**: IN PROGRESS
-    - **Is recurring issue?**: N
-    - **Should Test frontend/backend/both after fix?**: both
-    - **Blocked on other issue**: None
+Nenhum. A tarefa atual é a continuação de uma implementação de funcionalidade.
 
 **In progress Task List**:
-- **Task 1**: Implementação das melhorias de UX e relatórios. (PRIORIDADE: P0)
-  - **Where to resume**: O próximo passo é editar o ficheiro  para mover a imagem para a primeira coluna da tabela, espelhando a alteração já feita em . Depois, avançar com as restantes correções de UI e a atualização do backend para o histórico de movimentos.
-  - **What will be achieved with this?**: A UI será mais intuitiva e corrigida. O histórico de ativos será mais informativo.
+- **Task 1**: Concluir as melhorias no módulo de Viaturas (PRIORIDADE: P0)
+  - **Where to resume**: O agente já atualizou o backend e a página . O próximo passo é atualizar a página de detalhe, , para exibir os novos campos (documentação, estado da manutenção, datas de alerta) e adicionar os botões de ação rápida para marcar a viatura como em manutenção ou disponível, semelhante ao que foi feito em .
+  - **What will be achieved with this?**: O módulo de Viaturas terá paridade de funcionalidades com o de Equipamentos, oferecendo uma gestão mais detalhada e robusta, incluindo controlo de documentos e estado de manutenção.
   - **Status**: IN PROGRESS
   - **Should Test frontend/backend/both after fix?**: both
   - **Blocked on something**: None
 
 **Upcoming and Future Tasks**
 - **Upcoming Tasks**:
-  - **P1**: Implementar relatórios avançados: O utilizador pediu relatórios filtráveis por mês e por obra (ex: material gasto na obra X durante o mês de janeiro). Isto exigirá:
-    - Novos endpoints no backend com queries de agregação complexas em MongoDB.
-    - Novos componentes de UI na página de Relatórios com filtros (dropdowns para obra, mês, ano) para gerar e exibir estes relatórios.
+  - **P1: Implementar Alertas Automáticos**: Criar a lógica no backend para usar as datas de expiração (seguro, IPO) e enviar notificações por email (via Resend) com antecedência (ex: 30 dias).
+  - **P2: Controlo de Quilómetros para Viaturas**: Adicionar um campo para registar os KMs em cada movimento de uma viatura e usar esses dados para criar um histórico de consumo e alertas para manutenções baseadas na quilometragem.
 - **Future Tasks**:
-  - **P2**: Transformar a aplicação numa Progressive Web App (PWA): Permitir que a aplicação seja instalada no ecrã inicial do telemóvel e que tenha funcionalidades offline básicas.
+  - **P3: Histórico Completo de Manutenções**: Criar um histórico detalhado para cada ativo, registando todas as avarias passadas, custos de reparação e tempo de inatividade em oficina.
+  - **P4: Códigos QR**: Implementar a geração e leitura de códigos QR para facilitar a identificação e gestão de equipamentos e viaturas no terreno.
 
 **Completed work in this session**
-- **Refatoração Principal Concluída**:
-  - Nova identidade visual (logótipo, tema escuro/claro) implementada em toda a aplicação.
-  - Remoção bem-sucedida da entidade 'Locais', simplificando a lógica para usar apenas 'Obras'.
-  - Criação de páginas de detalhe de ativos (, , ) que mostram um histórico completo de movimentos.
-  - Implementação de um backend robusto para movimentos de ativos, incluindo atribuição, devolução e validação para impedir dupla alocação.
-- **Melhorias de UX e Responsividade**:
-  - Implementação de um tema claro/escuro com um botão de toggle no layout.
-  - A aplicação agora é responsiva e funciona bem em dispositivos móveis, usando uma vista de cards em vez de tabelas.
-  - As linhas nas listas de ativos são agora clicáveis, levando diretamente à página de detalhes.
-  - Adicionado um botão Atribuir a Obra diretamente nas listas para uma ação rápida.
+- **Melhorias no Módulo de Equipamentos**:
+  - Adicionados campos para documentação, estado de manutenção e descrição de avaria.
+  - Implementado upload de ficheiros PDF para os documentos.
+  - Criados indicadores de estado com cores (verde, laranja, vermelho) na lista e na página de detalhe.
+  - Adicionado um botão de ação rápida na página de detalhe para alterar o estado de manutenção sem editar o formulário completo.
+  - Implementado um editor inline para a descrição da avaria na página de detalhe.
+  - Corrigida a lógica para impedir a atribuição de equipamentos em manutenção.
+  - Corrigido o layout mobile (cards) para exibir corretamente as cores de estado.
+- **Relatórios Avançados e PWA**:
+  - Implementada uma página de relatórios com filtros por obra e data.
+  - A aplicação foi convertida com sucesso para uma Progressive Web App (PWA).
+- **Gestão Detalhada de Obras**:
+  - Criada uma nova página de detalhe da obra () que permite atribuir/devolver recursos e gerir stock de materiais diretamente.
 
 **Earlier issues found/mentioned but not fixed**
 - None.
@@ -85,74 +71,81 @@ Uma aplicação full-stack (FastAPI, React, MongoDB) funcional para gestão de a
 - **Database**: MongoDB
 - **UI Framework**: Shadcn/UI, TailwindCSS
 - **Authentication**: JWT
+- **File Storage**: Uploads locais para 
+- **PWA**: Manifest e Service Worker para funcionalidade offline e instalação.
 - **Integrations**: Resend (emails)
-- **Styling**: Variáveis CSS para theming dinâmico (claro/escuro).
 
 **key DB schema**
--   : {email, name, hashed_password}
--   : {codigo, nome, endereco, ...}
--   : {ID_Ativo, Codigo, Descricao, ..., obra_id, foto_url}
--   : {Matricula, Marca, Modelo, ..., obra_id, foto_url}
--   : {ID_Material, Codigo, Descricao, ...}
+-   : { ..., , , ,  (bool),  (str) }
+-   : { ..., , , , , ,  (bool),  (str) }
 -   : {recurso_id, tipo_recurso, tipo_movimento, obra_id, user_name, ...}
+-   : {material_id, obra_id, quantidade, tipo_movimento, ...}
 
 **changes in tech stack**
-- None nesta sessão.
+- None.
 
 **All files of reference**
--   : Contém toda a lógica da API. Foi modificado para adicionar um endpoint de detalhe para  e para usar modelos Pydantic específicos para atribuição/devolução.
--   : Contém as variáveis CSS para os temas claro e escuro. Foi modificado para corrigir a cor do texto dos inputs.
--   : Configura o  para o tema claro/escuro.
--   : Contém o botão para alternar o tema.
--   : Atualizado para mostrar a foto primeiro.
--   : Precisa de ser atualizado para mostrar a foto primeiro.
--   , : Componentes que mostram o histórico; precisam de ser atualizados para mostrar o nome da obra.
+-   : Modificado extensivamente para adicionar novos campos aos modelos  e , novos endpoints para relatórios, atualizações de estado de manutenção, e upload de PDFs.
+-   : Totalmente reescrito para incorporar as novas funcionalidades.
+-   : **Precisa ser atualizado** para refletir as novas funcionalidades.
+-   : Totalmente reescrito com novas funcionalidades (pesquisa, filtros, formulário, indicadores de cor).
+-   : Totalmente reescrito com banners de estado, botões de ação rápida e editor inline.
+-   : Nova página criada para gestão centralizada por obra.
+-   : Novo componente reutilizável para uploads de PDF.
+-   , : Novos ficheiros para a funcionalidade PWA.
 
 **Areas that need refactoring**:
-- O código foi extensivamente refatorado nesta sessão. Não há necessidade de mais refatoração imediata.
+- O ficheiro  está a ficar muito grande. Poderia ser benéfico dividi-lo em múltiplos ficheiros de rotas (ex: , ) para melhorar a organização e manutenção.
 
 **key api endpoints**
--   , 
--   Endpoints CRUD para , , , 
--   Endpoints de detalhe: , , 
--   Endpoints de movimento: , 
--   **A implementar**: Novos endpoints para os relatórios avançados.
+-   CRUD para , , , 
+-   , : Endpoints para upload de ficheiros.
+-   , : Endpoints  para alterar rapidamente o estado de manutenção.
+-   : Endpoint  para relatórios avançados.
 
 **Critical Info for New Agent**
--   A tarefa atual consiste em finalizar um conjunto de pequenas melhorias de UI e dados solicitadas pelo utilizador. A mais complexa envolve uma alteração no backend e frontend para enriquecer o histórico de movimentos com o nome da obra.
--   Todas as alterações de UI devem ser testadas nos dois temas (claro e escuro) e em ecrãs de telemóvel e desktop para garantir consistência.
--   Após concluir as melhorias atuais, as próximas grandes funcionalidades são os relatórios avançados e a conversão para PWA.
+-   A tarefa imediata é concluir a implementação das melhorias no módulo de **Viaturas**, focando-se em atualizar a página .
+-   O utilizador é muito participativo e prefere um ciclo de desenvolvimento iterativo: implementação -> feedback -> refinamento.
+-   Todas as novas funcionalidades de UI devem ser responsivas e testadas nos temas claro e escuro.
+-   Continue a usar o  após a conclusão de cada funcionalidade principal, pois tem sido eficaz a detetar bugs.
+-   Considere propor a refatoração do  após a conclusão das tarefas atuais para melhorar a estrutura do projeto.
 
 **documents and test reports created in this job**
--    (atualizado várias vezes)
+-   
+-   
+-   
+-   
+-   
+-   
+-   
 
 **Last 10 User Messages and any pending HUMAN messages**
-1.  **User (msg 195)**: Pediu novas funcionalidades: mostrar nome da obra no histórico, mostrar foto primeiro nas listas, corrigir cor de texto no modo claro, relatórios avançados e transformar em PWA. (IN PROGRESS)
-2.  **Agent (msg 194)**: Finalizou as melhorias de UX (tema claro/escuro, mobile, etc.) e sugeriu a transformação em PWA. (DONE)
-3.  **User (msg 155)**: Aprovou o plano para as melhorias de UX. (DONE)
-4.  **Agent (msg 154)**: Apresentou o plano para implementar o tema claro/escuro, a responsividade mobile e outras melhorias de UX. (DONE)
-5.  **User (msg 152)**: Pediu as melhorias de UX: lançamento para obra, ficha ao clicar, modo claro/escuro e otimização mobile. (DONE)
-6.  **Agent (msg 151)**: Finalizou a grande refatoração (remoção de Locais, nova UI, fichas de histórico). (DONE)
-7.  **User (msg 99)**: pode prosseguir (enquanto o agente de testes corria). (DONE)
-8.  **Agent (msg 98)**: Iniciou o  após a grande refatoração (o agente não esperou pelo resultado, fez testes manuais). (DONE)
-9.  **User (msg 5)**: sim concordo (aprovando o plano inicial de refatoração). (DONE)
-10. **Agent (msg 4)**: Apresentou o plano detalhado para a grande refatoração. (DONE)
+1.  **User (msg 330)**: Concordou em implementar as melhorias de Documentação, Manutenção e Alertas para as viaturas. (IN PROGRESS)
+2.  **Agent (msg 329)**: Sugeriu melhorias para as Viaturas, baseadas nas funcionalidades dos Equipamentos.
+3.  **User (msg 328)**: Perguntou que melhorias poderiam ser feitas nas Viaturas.
+4.  **Agent (msg 327)**: Confirmou que a correção das cores na vista mobile foi bem-sucedida.
+5.  **User (msg 319)**: Reportou que as cores de estado não estavam a aparecer (problema na vista mobile). (RESOLVED)
+6.  **User (msg 315)**: Reportou que o estado de localização na lista de equipamentos ainda não estava correto. (RESOLVED)
+7.  **Agent (msg 314)**: Confirmou a correção do estado na lista de equipamentos.
+8.  **User (msg 295, 298)**: Reportou que um equipamento em manutenção ainda podia ser atribuído a uma obra. (RESOLVED)
+9.  **User (msg 266)**: Pediu que a descrição da avaria pudesse ser editada diretamente na ficha do equipamento, sem entrar no modo de edição completo. (RESOLVED)
+10. **User (msg 264)**: Pediu upload de PDFs para documentos e uma forma mais rápida de gerir o estado de manutenção, com indicadores de cor. (RESOLVED)
 
 **Project Health Check:**
--   **In Development**: A aplicação está funcional, mas a meio da implementação de um novo conjunto de funcionalidades. Não está quebrada, mas as novas funcionalidades estão incompletas.
+-   **In Development**: A aplicação está estável. O agente está a meio da implementação de uma funcionalidade importante no módulo de Viaturas.
 
 **3rd Party Integrations**
 -   **Resend 2.21.0**: Para notificações por email.
 
 **Testing status**
--   **Testing agent used after significant changes**: NO (Não nesta sessão. O agente invocou-o mas não usou o resultado, optando por testes manuais com  e  que foram bem-sucedidos).
+-   **Testing agent used after significant changes**: YES
 -   **Troubleshoot agent used after agent stuck in loop**: NO
--   **Test files created**: None in this session.
--   **Known regressions**: None.
+-   **Test files created**: None
+-   **Known regressions**: None
 
 **Credentials to test flow:**
 -   **Email**: 
 -   **Password**: 
 
 **What agent forgot to execute**
-- O agente invocou o  mas não aguardou nem analisou o relatório de teste. Em vez disso, validou a funcionalidade através de testes manuais extensivos, o que foi eficaz mas contornou o processo padrão.</analysis>
+- O agente não se esqueceu de nada significativo. A tarefa atual de atualizar as Viaturas foi iniciada, mas a página de detalhe () ainda precisa ser modificada para completar a funcionalidade.</analysis>

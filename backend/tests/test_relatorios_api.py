@@ -6,7 +6,7 @@ import pytest
 import requests
 import os
 
-BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://buildstock-hub.preview.emergentagent.com')
+BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', 'https://constructpm-1.preview.emergentagent.com')
 
 # Test credentials
 TEST_EMAIL = "test@test.com"
