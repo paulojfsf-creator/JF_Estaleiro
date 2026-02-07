@@ -84,6 +84,24 @@ export default function EquipamentoDetail() {
     setManutencaoDialog(false);
   };
 
+  const handleSaveAvaria = async () => {
+    setSaving(true);
+    try {
+      await axios.patch(`${API}/equipamentos/${id}/manutencao`, {
+        em_manutencao: true,
+        descricao_avaria: descricaoAvaria
+      }, { headers: { Authorization: `Bearer ${token}` } });
+      
+      toast.success("Descrição da avaria atualizada");
+      setEditingAvaria(false);
+      fetchData();
+    } catch (error) {
+      toast.error("Erro ao guardar descrição");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const updateManutencao = async (emManutencao, descricao) => {
     setSaving(true);
     try {
