@@ -1346,6 +1346,235 @@ async def get_relatorio_obra(
         "consumo_materiais": list(consumo_materiais.values())
     }
 
+# ==================== NOVOS RELATÓRIOS ====================
+
+@api_router.get("/relatorios/manutencoes")
+async def get_relatorio_manutencoes(
+    tipo_recurso: Optional[str] = None,
+    user=Depends(get_current_user)
+):
+    """Relatório de equipamentos e viaturas em manutenção/oficina"""
+    equipamentos_manutencao = []
+    viaturas_manutencao = []
+    
+    if not tipo_recurso or tipo_recurso == "equipamento":
+        equipamentos = await db.equipamentos.find({"em_manutencao": True}, {"_id": 0}).to_list(1000)
+        for eq in equipamentos:
+            eq["tipo"] = "equipamento"
+            equipamentos_manutencao.append(eq)
+    
+    if not tipo_recurso or tipo_recurso == "viatura":
+        viaturas = await db.viaturas.find({"em_manutencao": True}, {"_id": 0}).to_list(1000)
+        for v in viaturas:
+            set_viatura_defaults(v)
+            v["tipo"] = "viatura"
+            viaturas_manutencao.append(v)
+    
+    return {
+        "equipamentos": equipamentos_manutencao,
+        "viaturas": viaturas_manutencao,
+        "estatisticas": {
+            "total_equipamentos": len(equipamentos_manutencao),
+            "total_viaturas": len(viaturas_manutencao),
+            "total_geral": len(equipamentos_manutencao) + len(viaturas_manutencao)
+        }
+    }
+
+@api_router.get("/relatorios/alertas")
+async def get_relatorio_alertas(
+    tipo_recurso: Optional[str] = None,
+    dias_antecedencia: int = 30,
+    user=Depends(get_current_user)
+):
+    """Relatório de documentos a expirar (seguro, IPO, vistoria, revisão)"""
+    alertas = []
+    hoje = datetime.now(timezone.utc).date()
+    
+    if not tipo_recurso or tipo_recurso == "viatura":
+        viaturas = await db.viaturas.find({"ativa": True}, {"_id": 0}).to_list(1000)
+        
+        for v in viaturas:
+            set_viatura_defaults(v)
+            
+            # Verificar datas de expiração
+            campos_data = [
+                ("data_seguro", "Seguro"),
+                ("data_ipo", "IPO"),
+                ("data_vistoria", "Vistoria"),
+                ("data_proxima_revisao", "Revisão")
+            ]
+            
+            for campo, nome in campos_data:
+                if v.get(campo):
+                    try:
+                        data_exp = datetime.fromisoformat(v[campo].replace("Z", "+00:00")).date()
+                        dias_restantes = (data_exp - hoje).days
+                        
+                        if dias_restantes <= dias_antecedencia:
+                            alertas.append({
+                                "tipo_recurso": "viatura",
+                                "recurso_id": v["id"],
+                                "identificador": v["matricula"],
+                                "descricao": f"{v.get('marca', '')} {v.get('modelo', '')}",
+                                "tipo_alerta": nome,
+                                "data_expiracao": data_exp.strftime("%Y-%m-%d"),
+                                "dias_restantes": dias_restantes,
+                                "urgente": dias_restantes <= 7,
+                                "expirado": dias_restantes < 0
+                            })
+                    except:
+                        pass
+            
+            # Verificar KMs para revisão
+            if v.get("kms_proxima_revisao") and v.get("kms_atual"):
+                kms_faltam = v["kms_proxima_revisao"] - v["kms_atual"]
+                if kms_faltam <= 1000:
+                    alertas.append({
+                        "tipo_recurso": "viatura",
+                        "recurso_id": v["id"],
+                        "identificador": v["matricula"],
+                        "descricao": f"{v.get('marca', '')} {v.get('modelo', '')}",
+                        "tipo_alerta": "Revisão KM",
+                        "data_expiracao": None,
+                        "dias_restantes": None,
+                        "kms_restantes": kms_faltam,
+                        "urgente": kms_faltam <= 500,
+                        "expirado": kms_faltam <= 0
+                    })
+    
+    # Ordenar por urgência e dias restantes
+    alertas_ordenados = sorted(alertas, key=lambda x: (not x.get("expirado", False), not x.get("urgente", False), x.get("dias_restantes") or 999))
+    
+    return {
+        "alertas": alertas_ordenados,
+        "estatisticas": {
+            "total_alertas": len(alertas),
+            "expirados": len([a for a in alertas if a.get("expirado")]),
+            "urgentes": len([a for a in alertas if a.get("urgente") and not a.get("expirado")]),
+            "proximos": len([a for a in alertas if not a.get("urgente") and not a.get("expirado")])
+        }
+    }
+
+@api_router.get("/relatorios/utilizacao")
+async def get_relatorio_utilizacao(
+    tipo_recurso: Optional[str] = None,
+    estado: Optional[str] = None,
+    data_inicio: Optional[str] = None,
+    data_fim: Optional[str] = None,
+    user=Depends(get_current_user)
+):
+    """Relatório de utilização por equipamento/viatura com filtros"""
+    resultado = {"equipamentos": [], "viaturas": []}
+    
+    # Filtrar equipamentos
+    if not tipo_recurso or tipo_recurso == "equipamento":
+        query_eq = {}
+        if estado == "disponivel":
+            query_eq["obra_id"] = None
+            query_eq["em_manutencao"] = {"$ne": True}
+        elif estado == "em_obra":
+            query_eq["obra_id"] = {"$ne": None}
+        elif estado == "manutencao":
+            query_eq["em_manutencao"] = True
+        
+        equipamentos = await db.equipamentos.find(query_eq, {"_id": 0}).to_list(1000)
+        
+        for eq in equipamentos:
+            eq.setdefault("em_manutencao", False)
+            
+            # Contar movimentos
+            mov_query = {"recurso_id": eq["id"], "tipo_recurso": "equipamento"}
+            if data_inicio and data_fim:
+                mov_query["created_at"] = {"$gte": data_inicio, "$lte": data_fim}
+            
+            movimentos = await db.movimentos.find(mov_query, {"_id": 0}).to_list(1000)
+            
+            # Calcular estatísticas
+            eq["total_movimentos"] = len(movimentos)
+            eq["total_saidas"] = len([m for m in movimentos if m.get("tipo_movimento") == "Saida"])
+            eq["total_devolucoes"] = len([m for m in movimentos if m.get("tipo_movimento") == "Devolucao"])
+            
+            # Determinar estado
+            if eq.get("em_manutencao"):
+                eq["estado_atual"] = "manutencao"
+            elif eq.get("obra_id"):
+                obra = await db.obras.find_one({"id": eq["obra_id"]}, {"_id": 0, "nome": 1})
+                eq["estado_atual"] = "em_obra"
+                eq["obra_nome"] = obra.get("nome") if obra else ""
+            else:
+                eq["estado_atual"] = "disponivel"
+            
+            resultado["equipamentos"].append(eq)
+    
+    # Filtrar viaturas
+    if not tipo_recurso or tipo_recurso == "viatura":
+        query_vt = {}
+        if estado == "disponivel":
+            query_vt["obra_id"] = None
+            query_vt["em_manutencao"] = {"$ne": True}
+        elif estado == "em_obra":
+            query_vt["obra_id"] = {"$ne": None}
+        elif estado == "manutencao":
+            query_vt["em_manutencao"] = True
+        
+        viaturas = await db.viaturas.find(query_vt, {"_id": 0}).to_list(1000)
+        
+        for v in viaturas:
+            set_viatura_defaults(v)
+            
+            # Contar movimentos
+            mov_query = {"recurso_id": v["id"], "tipo_recurso": "viatura"}
+            if data_inicio and data_fim:
+                mov_query["created_at"] = {"$gte": data_inicio, "$lte": data_fim}
+            
+            movimentos = await db.movimentos.find(mov_query, {"_id": 0}).to_list(1000)
+            
+            v["total_movimentos"] = len(movimentos)
+            v["total_saidas"] = len([m for m in movimentos if m.get("tipo_movimento") == "Saida"])
+            v["total_devolucoes"] = len([m for m in movimentos if m.get("tipo_movimento") == "Devolucao"])
+            
+            # Determinar estado
+            if v.get("em_manutencao"):
+                v["estado_atual"] = "manutencao"
+            elif v.get("obra_id"):
+                obra = await db.obras.find_one({"id": v["obra_id"]}, {"_id": 0, "nome": 1})
+                v["estado_atual"] = "em_obra"
+                v["obra_nome"] = obra.get("nome") if obra else ""
+            else:
+                v["estado_atual"] = "disponivel"
+            
+            resultado["viaturas"].append(v)
+    
+    # Estatísticas gerais
+    total_eq = len(resultado["equipamentos"])
+    total_vt = len(resultado["viaturas"])
+    
+    eq_disponivel = len([e for e in resultado["equipamentos"] if e.get("estado_atual") == "disponivel"])
+    eq_obra = len([e for e in resultado["equipamentos"] if e.get("estado_atual") == "em_obra"])
+    eq_manut = len([e for e in resultado["equipamentos"] if e.get("estado_atual") == "manutencao"])
+    
+    vt_disponivel = len([v for v in resultado["viaturas"] if v.get("estado_atual") == "disponivel"])
+    vt_obra = len([v for v in resultado["viaturas"] if v.get("estado_atual") == "em_obra"])
+    vt_manut = len([v for v in resultado["viaturas"] if v.get("estado_atual") == "manutencao"])
+    
+    return {
+        **resultado,
+        "estatisticas": {
+            "equipamentos": {
+                "total": total_eq,
+                "disponivel": eq_disponivel,
+                "em_obra": eq_obra,
+                "manutencao": eq_manut
+            },
+            "viaturas": {
+                "total": total_vt,
+                "disponivel": vt_disponivel,
+                "em_obra": vt_obra,
+                "manutencao": vt_manut
+            }
+        }
+    }
+
 @api_router.get("/")
 async def root():
     return {"message": "José Firmino - API de Gestão de Armazém"}
