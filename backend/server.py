@@ -107,6 +107,20 @@ class ViaturaCreate(BaseModel):
     apolice_seguro: str = ""
     observacoes: str = ""
     obra_id: Optional[str] = None
+    # Novos campos - Documentação
+    dua_url: str = ""
+    seguro_url: str = ""
+    ipo_url: str = ""
+    carta_verde_url: str = ""
+    manual_url: str = ""
+    # Novos campos - Manutenção
+    em_manutencao: bool = False
+    descricao_avaria: str = ""
+    # Novos campos - Datas para alertas
+    data_ipo: Optional[str] = None
+    data_proxima_revisao: Optional[str] = None
+    kms_atual: int = 0
+    kms_proxima_revisao: int = 0
 
 class Viatura(ViaturaCreate):
     model_config = ConfigDict(extra="ignore")
