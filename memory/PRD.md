@@ -35,6 +35,17 @@ Sistema de gestão de armazém para construção civil, permitindo o controlo de
 - ✅ Atribuição direta a obras
 - ✅ Ficha de detalhe com histórico de movimentos e KMs
 - ✅ Botão "Atribuir a Obra" diretamente na listagem
+- ✅ Campos de documentação com **upload de PDF**: DUA (Doc. Único), Apólice de Seguro, Ficha IPO, Carta Verde, Manual do Veículo
+- ✅ Estado de manutenção/oficina: switch "Em Oficina / Avariado" com descrição da avaria
+- ✅ **Marcar em oficina na ficha** sem entrar em edição (botão direto na página de detalhe)
+- ✅ **Editor inline da descrição da avaria** com ícone de edição
+- ✅ **Indicadores de estado com cores**:
+  - 🟢 Verde: Disponível em Armazém
+  - 🟠 Laranja: Em Obra
+  - 🔴 Vermelho: Em Oficina / Avariado
+- ✅ **Datas importantes com alertas de expiração**: Seguro, IPO, Revisão, Vistoria
+- ✅ Alertas calculados no backend para cada viatura
+- ✅ Controlo de quilometragem (KMs atual e próxima revisão)
 
 ### 2.4 Gestão de Materiais
 - ✅ CRUD completo
