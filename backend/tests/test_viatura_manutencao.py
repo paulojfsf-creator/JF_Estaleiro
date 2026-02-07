@@ -23,7 +23,7 @@ def get_auth_headers():
             "password": "test123"
         })
         assert response.status_code == 200, f"Login failed: {response.text}"
-        _token = response.json().get("token")
+        _token = response.json().get("access_token")
         _headers = {"Authorization": f"Bearer {_token}"}
     return _headers
 
