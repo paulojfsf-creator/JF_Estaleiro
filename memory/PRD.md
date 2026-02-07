@@ -201,6 +201,7 @@ Sistema de gestão de armazém para construção civil, permitindo o controlo de
 
 ### P0 - Imediato:
 - [x] Melhorias no módulo de Viaturas (documentação, manutenção, alertas) ✅ CONCLUÍDO
+- [x] Melhorias nos Relatórios (novos tipos, filtros avançados) ✅ CONCLUÍDO
 
 ### P1 - Prioritário:
 - [ ] Alertas automáticos por email para expiração de documentos (seguro, IPO) usando Resend
