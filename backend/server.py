@@ -382,6 +382,13 @@ async def get_upload(filename: str):
 @api_router.get("/equipamentos")
 async def get_equipamentos(user=Depends(get_current_user)):
     items = await db.equipamentos.find({}, {"_id": 0}).to_list(1000)
+    # Garantir que os campos novos têm valores por defeito
+    for item in items:
+        item.setdefault("em_manutencao", False)
+        item.setdefault("descricao_avaria", "")
+        item.setdefault("manual_url", "")
+        item.setdefault("certificado_url", "")
+        item.setdefault("ficha_manutencao_url", "")
     return items
 
 @api_router.get("/equipamentos/{equipamento_id}")
