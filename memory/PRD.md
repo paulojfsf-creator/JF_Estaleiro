@@ -119,8 +119,8 @@ Sistema de gestão de armazém para construção civil, permitindo o controlo de
 
 ### 4.3 Endpoints API
 - `/api/auth/login`, `/api/auth/register`, `/api/auth/me`
-- `/api/equipamentos`, `/api/equipamentos/{id}`
-- `/api/viaturas`, `/api/viaturas/{id}`
+- `/api/equipamentos`, `/api/equipamentos/{id}`, `/api/equipamentos/{id}/manutencao`
+- `/api/viaturas`, `/api/viaturas/{id}`, `/api/viaturas/{id}/manutencao`
 - `/api/materiais`, `/api/materiais/{id}`
 - `/api/obras`, `/api/obras/{id}`
 - `/api/movimentos`, `/api/movimentos/atribuir`, `/api/movimentos/devolver`
@@ -128,6 +128,8 @@ Sistema de gestão de armazém para construção civil, permitindo o controlo de
 - `/api/export/pdf`, `/api/export/excel`
 - `/api/import/excel`
 - `/api/alerts/send`
+- `/api/relatorios/movimentos`, `/api/relatorios/stock`, `/api/relatorios/obra/{id}`
+- `/api/relatorios/manutencoes`, `/api/relatorios/alertas`, `/api/relatorios/utilizacao`
 - `/api/summary`
 
 ## 5. O Que Foi Implementado
